@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <defs>
+    <linearGradient id="sankalpGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#06b6d4" />
+      <stop offset="50%" stop-color="#38bdf8" />
+      <stop offset="100%" stop-color="#8b5cf6" />
+    </linearGradient>
+    <linearGradient id="innerGlow" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.8" />
+      <stop offset="100%" stop-color="#070b14" stop-opacity="0.2" />
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="16" fill="#070b14" stroke="#38bdf8" stroke-width="2" stroke-opacity="0.4"/>
+  <!-- Isometric 3D Hexagon Campus Core -->
+  <path d="M32 10 L52 21.5 V44.5 L32 56 L12 44.5 V21.5 Z" fill="url(#innerGlow)" stroke="url(#sankalpGrad)" stroke-width="2.5" stroke-linejoin="round"/>
+  <!-- 3D Internal Axes -->
+  <path d="M32 33 L52 21.5" stroke="url(#sankalpGrad)" stroke-width="2"/>
+  <path d="M32 33 L12 21.5" stroke="url(#sankalpGrad)" stroke-width="2"/>
+  <path d="M32 33 V56" stroke="url(#sankalpGrad)" stroke-width="2"/>
+  <!-- Glowing Center Node -->
+  <circle cx="32" cy="33" r="4" fill="#38bdf8"/>
+  <circle cx="32" cy="33" r="7" stroke="#06b6d4" stroke-width="1.5" stroke-dasharray="2 2"/>
+</svg>
