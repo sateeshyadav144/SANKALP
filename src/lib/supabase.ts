@@ -1,7 +1,15 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || '';
+const getEnvOrStorage = (envKey: string, storageKey: string): string => {
+  if (typeof window !== 'undefined') {
+    const fromStorage = localStorage.getItem(storageKey);
+    if (fromStorage && fromStorage.trim()) return fromStorage.trim();
+  }
+  return (import.meta.env[envKey] as string) || '';
+};
+
+export const supabaseUrl = getEnvOrStorage('VITE_SUPABASE_URL', 'sankalp_supabase_url');
+export const supabaseAnonKey = getEnvOrStorage('VITE_SUPABASE_ANON_KEY', 'sankalp_supabase_anon_key');
 
 // Detect if valid Supabase credentials have been configured
 export const isSupabaseConfigured = Boolean(
