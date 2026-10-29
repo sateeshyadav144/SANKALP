@@ -18,52 +18,42 @@ export const CAMPUS_NODES = [
 function CentralCore() {
   const coreRef = useRef<THREE.Group>(null);
   const ringRef = useRef<THREE.Mesh>(null);
-  const ringRef2 = useRef<THREE.Mesh>(null);
 
   useFrame((_, delta) => {
     if (coreRef.current) {
-      coreRef.current.rotation.y += delta * 0.3;
-      coreRef.current.rotation.x += delta * 0.15;
+      coreRef.current.rotation.y += delta * 0.12;
+      coreRef.current.rotation.x += delta * 0.05;
     }
     if (ringRef.current) {
-      ringRef.current.rotation.z += delta * 0.4;
-    }
-    if (ringRef2.current) {
-      ringRef2.current.rotation.x -= delta * 0.35;
-      ringRef2.current.rotation.y += delta * 0.25;
+      ringRef.current.rotation.z += delta * 0.15;
     }
   });
 
   return (
     <group ref={coreRef}>
-      {/* Organic Distorted Core */}
-      <Sphere args={[0.9, 64, 64]}>
+      {/* Subtle Metallic Core */}
+      <Sphere args={[0.85, 32, 32]}>
         <MeshDistortMaterial
-          color="#06b6d4"
+          color="#0ea5e9"
           attach="material"
-          distort={0.4}
-          speed={2.2}
-          roughness={0.1}
-          metalness={0.8}
+          distort={0.06}
+          speed={1.0}
+          roughness={0.2}
+          metalness={0.7}
           wireframe={false}
         />
       </Sphere>
 
       {/* Outer Holographic Wireframe Shield */}
       <mesh>
-        <icosahedronGeometry args={[1.35, 1]} />
-        <meshBasicMaterial color="#38bdf8" wireframe transparent opacity={0.35} />
+        <icosahedronGeometry args={[1.25, 1]} />
+        <meshBasicMaterial color="#38bdf8" wireframe transparent opacity={0.2} />
       </mesh>
 
-      {/* Orbiting Orbital Rings */}
+      {/* Orbiting Subtle Ring */}
       <mesh ref={ringRef} rotation={[Math.PI / 3, 0, 0]}>
-        <torusGeometry args={[1.75, 0.02, 16, 100]} />
-        <meshBasicMaterial color="#8b5cf6" transparent opacity={0.65} />
-      </mesh>
-
-      <mesh ref={ringRef2} rotation={[-Math.PI / 4, Math.PI / 4, 0]}>
-        <torusGeometry args={[2.05, 0.015, 16, 100]} />
-        <meshBasicMaterial color="#38bdf8" transparent opacity={0.5} />
+        <torusGeometry args={[1.7, 0.015, 16, 80]} />
+        <meshBasicMaterial color="#60a5fa" transparent opacity={0.35} />
       </mesh>
     </group>
   );
@@ -81,13 +71,13 @@ function OrbitingModuleNode({
 
   useFrame((_, delta) => {
     if (meshRef.current) {
-      meshRef.current.rotation.y += delta * (hovered ? 2.5 : 0.8);
-      meshRef.current.rotation.x += delta * (hovered ? 1.5 : 0.4);
+      meshRef.current.rotation.y += delta * (hovered ? 0.8 : 0.3);
+      meshRef.current.rotation.x += delta * (hovered ? 0.5 : 0.2);
     }
   });
 
   return (
-    <Float speed={2} rotationIntensity={1} floatIntensity={1.5}>
+    <Float speed={1.2} rotationIntensity={0.6} floatIntensity={0.8}>
       <group position={node.position}>
         <mesh
           ref={meshRef}
@@ -100,23 +90,22 @@ function OrbitingModuleNode({
             setHovered(false);
             onHover(null);
           }}
-          scale={hovered ? 1.4 : 1}
+          scale={hovered ? 1.25 : 1}
         >
-          <octahedronGeometry args={[0.3, 0]} />
+          <octahedronGeometry args={[0.26, 0]} />
           <meshStandardMaterial
             color={node.color}
             emissive={node.color}
-            emissiveIntensity={hovered ? 1.8 : 0.8}
-            roughness={0.2}
-            metalness={0.9}
+            emissiveIntensity={hovered ? 1.2 : 0.6}
+            roughness={0.25}
+            metalness={0.8}
           />
         </mesh>
 
-        {/* Outer Halo on hover */}
         {hovered && (
           <mesh>
-            <sphereGeometry args={[0.5, 16, 16]} />
-            <meshBasicMaterial color={node.color} wireframe transparent opacity={0.4} />
+            <sphereGeometry args={[0.42, 16, 16]} />
+            <meshBasicMaterial color={node.color} wireframe transparent opacity={0.3} />
           </mesh>
         )}
       </group>
@@ -140,18 +129,18 @@ function ConnectingLaserBeams() {
 
   return (
     <lineSegments geometry={linesGeometry}>
-      <lineBasicMaterial color="#38bdf8" transparent opacity={0.25} linewidth={1} />
+      <lineBasicMaterial color="#38bdf8" transparent opacity={0.12} linewidth={1} />
     </lineSegments>
   );
 }
 
-function FloatingCyberParticles({ count = 90 }) {
+function FloatingCyberParticles({ count = 40 }) {
   const points = useMemo(() => {
     const coords = new Float32Array(count * 3);
     for (let i = 0; i < count; i++) {
-      coords[i * 3] = (Math.random() - 0.5) * 12;
-      coords[i * 3 + 1] = (Math.random() - 0.5) * 10;
-      coords[i * 3 + 2] = (Math.random() - 0.5) * 8;
+      coords[i * 3] = (Math.random() - 0.5) * 10;
+      coords[i * 3 + 1] = (Math.random() - 0.5) * 8;
+      coords[i * 3 + 2] = (Math.random() - 0.5) * 6;
     }
     return coords;
   }, [count]);
@@ -160,8 +149,7 @@ function FloatingCyberParticles({ count = 90 }) {
 
   useFrame((_, delta) => {
     if (particlesRef.current) {
-      particlesRef.current.rotation.y += delta * 0.05;
-      particlesRef.current.rotation.x += delta * 0.02;
+      particlesRef.current.rotation.y += delta * 0.03;
     }
   });
 
@@ -174,10 +162,10 @@ function FloatingCyberParticles({ count = 90 }) {
         />
       </bufferGeometry>
       <pointsMaterial
-        size={0.06}
+        size={0.035}
         color="#38bdf8"
         transparent
-        opacity={0.6}
+        opacity={0.35}
         sizeAttenuation
       />
     </points>
@@ -187,15 +175,15 @@ function FloatingCyberParticles({ count = 90 }) {
 // Lightweight 2D/SVG Canvas Fallback for devices without WebGL
 export function Campus2DFallback({ onNodeSelect }: { onNodeSelect?: (id: string) => void }) {
   return (
-    <div className="relative w-full h-full min-h-[380px] flex items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-br from-[#070b14] via-[#0d1629] to-[#121d38] border border-cyan-500/20 shadow-2xl">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(6,182,212,0.15)_0,transparent_70%)]" />
+    <div className="relative w-full h-full min-h-[260px] flex items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-br from-[#070b14] via-[#0d1629] to-[#121d38] border border-cyan-500/20 shadow-xl">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(6,182,212,0.1)_0,transparent_70%)]" />
       
       {/* Circuit Rings */}
-      <div className="relative w-72 h-72 rounded-full border border-cyan-500/30 flex items-center justify-center animate-spin" style={{ animationDuration: '40s' }}>
-        <div className="w-52 h-52 rounded-full border border-violet-500/30 border-dashed flex items-center justify-center animate-spin" style={{ animationDuration: '25s', animationDirection: 'reverse' }}>
-          <div className="w-32 h-32 rounded-full bg-cyan-500/10 backdrop-blur-md border border-cyan-400/50 flex flex-col items-center justify-center text-center p-2 shadow-glow-cyan animate-pulse">
-            <span className="text-xs uppercase tracking-widest text-cyan-300 font-bold">SANKALP</span>
-            <span className="text-[10px] text-slate-400">SMART CORE</span>
+      <div className="relative w-56 h-56 rounded-full border border-cyan-500/20 flex items-center justify-center">
+        <div className="w-36 h-36 rounded-full border border-blue-500/20 border-dashed flex items-center justify-center">
+          <div className="w-24 h-24 rounded-full bg-cyan-500/10 backdrop-blur-md border border-cyan-400/30 flex flex-col items-center justify-center text-center p-2">
+            <span className="text-[11px] uppercase tracking-wider text-cyan-300 font-bold font-mono">SANKALP</span>
+            <span className="text-[9px] text-slate-400">ECOSYSTEM</span>
           </div>
         </div>
       </div>
@@ -204,7 +192,7 @@ export function Campus2DFallback({ onNodeSelect }: { onNodeSelect?: (id: string)
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
         {CAMPUS_NODES.map((node, i) => {
           const angle = (i / CAMPUS_NODES.length) * 2 * Math.PI;
-          const radius = 140; // px
+          const radius = 115; // px
           const x = Math.cos(angle) * radius;
           const y = Math.sin(angle) * radius;
 
@@ -213,11 +201,10 @@ export function Campus2DFallback({ onNodeSelect }: { onNodeSelect?: (id: string)
               key={node.id}
               onClick={() => onNodeSelect?.(node.id)}
               style={{ transform: `translate(${x}px, ${y}px)` }}
-              className="absolute pointer-events-auto px-2.5 py-1 rounded-full text-[11px] font-medium transition-all duration-300 hover:scale-110 flex items-center gap-1.5 shadow-lg"
-              style-custom={`background: rgba(13, 21, 39, 0.9); border: 1px solid ${node.color}; color: #f1f5f9; box-shadow: 0 0 15px ${node.color}40;`}
+              className="absolute pointer-events-auto px-2 py-0.5 rounded-full text-[10px] font-medium transition-all duration-200 hover:scale-105 flex items-center gap-1.5 shadow"
             >
-              <span className="w-2 h-2 rounded-full" style={{ backgroundColor: node.color }} />
-              <span>{node.name}</span>
+              <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: node.color }} />
+              <span className="text-slate-200">{node.name}</span>
             </button>
           );
         })}
@@ -230,7 +217,7 @@ export function Campus2DFallback({ onNodeSelect }: { onNodeSelect?: (id: string)
 export const CampusCanvas: React.FC<{
   onNodeSelect?: (id: string) => void;
   height?: string;
-}> = ({ onNodeSelect, height = 'h-[440px]' }) => {
+}> = ({ onNodeSelect, height = 'h-[300px]' }) => {
   const [hoveredNode, setHoveredNode] = useState<string | null>(null);
   const [hasWebGL, setHasWebGL] = useState<boolean>(true);
 
@@ -249,33 +236,28 @@ export const CampusCanvas: React.FC<{
   }
 
   return (
-    <div className={`relative w-full ${height} rounded-2xl overflow-hidden bg-gradient-to-b from-[#080d1a] to-[#04070e] border border-cyan-500/20 shadow-2xl`}>
+    <div className={`relative w-full ${height} rounded-2xl overflow-hidden bg-gradient-to-b from-[#080d1a] to-[#04070e] border border-cyan-500/20 shadow-xl`}>
       {/* Background radial glow */}
-      <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_50%_50%,rgba(6,182,212,0.12)_0%,rgba(7,11,20,0)_70%)]" />
+      <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_50%_50%,rgba(6,182,212,0.08)_0%,rgba(7,11,20,0)_70%)]" />
 
-      {/* Floating HUD Tooltip */}
-      <div className="absolute top-4 left-4 z-10 pointer-events-none flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-900/80 backdrop-blur-md border border-cyan-500/30 text-xs">
-        <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
-        <span className="text-cyan-300 font-mono tracking-wider">3D CAMPUS MESH:</span>
-        <span className="text-slate-200 font-semibold">{hoveredNode || '8 Connected Modules Active'}</span>
-      </div>
-
-      <div className="absolute bottom-4 right-4 z-10 pointer-events-none text-[11px] font-mono text-slate-400 bg-slate-900/60 backdrop-blur px-2.5 py-1 rounded border border-slate-700/50">
-        Three.js Engine • Interactive WebGL
+      {/* Clean Status Tag */}
+      <div className="absolute top-3 left-3 z-10 pointer-events-none flex items-center gap-2 px-2.5 py-1 rounded-md bg-slate-900/80 backdrop-blur-sm border border-cyan-500/20 text-[11px] font-mono text-slate-300">
+        <span className="w-1.5 h-1.5 rounded-full bg-cyan-400" />
+        <span>{hoveredNode ? hoveredNode : 'Campus Mesh Active'}</span>
       </div>
 
       <Canvas
-        camera={{ position: [0, 0, 6.2], fov: 50 }}
+        camera={{ position: [0, 0, 5.8], fov: 48 }}
         gl={{ antialias: true, alpha: true }}
       >
         <ambientLight intensity={0.7} />
-        <pointLight position={[10, 10, 10]} intensity={1.5} color="#38bdf8" />
-        <pointLight position={[-10, -10, -10]} intensity={1.2} color="#8b5cf6" />
+        <pointLight position={[10, 10, 10]} intensity={1.2} color="#38bdf8" />
+        <pointLight position={[-10, -10, -10]} intensity={0.8} color="#60a5fa" />
         
         {/* Central Core & Modules */}
         <CentralCore />
         <ConnectingLaserBeams />
-        <FloatingCyberParticles count={80} />
+        <FloatingCyberParticles count={40} />
 
         {CAMPUS_NODES.map((node) => (
           <OrbitingModuleNode

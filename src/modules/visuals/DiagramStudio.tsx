@@ -259,12 +259,12 @@ export const DiagramStudio: React.FC = () => {
             <div className="p-2 rounded-xl bg-sky-500/10 text-sky-400 border border-sky-500/20">
               <GitGraph className="w-5 h-5" />
             </div>
-            <h1 className="text-xl sm:text-2xl font-extrabold text-white tracking-tight">
-              Notes, Visuals & Concept Diagram Studio
+            <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
+              Notes & Visual Diagrams
             </h1>
           </div>
           <p className="text-xs text-slate-400 mt-1">
-            Author engineering flowcharts, architecture maps, and state machines with live Mermaid rendering and instant SVG exports.
+            Author engineering flowcharts, architecture maps, and state machines with live Mermaid rendering and SVG export.
           </p>
         </div>
 

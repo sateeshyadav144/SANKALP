@@ -4,22 +4,20 @@ import {
   Mail,
   User,
   GraduationCap,
-  Sparkles,
   ArrowRight,
   ShieldCheck,
   AlertCircle,
   Eye,
   EyeOff,
-  BookOpen,
   CheckCircle2,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { CampusCanvas } from '../components/3d/CampusCanvas';
 
-type AuthMode = 'login' | 'register' | 'forgot' | 'reset';
+type AuthMode = 'login' | 'register' | 'forgot';
 
 export const AuthPage: React.FC = () => {
-  const { signIn, signUp, resetPassword, isSupabaseConnected } = useAuth();
+  const { signIn, signUp, resetPassword } = useAuth();
   const [mode, setMode] = useState<AuthMode>('login');
 
   // Form states
@@ -64,83 +62,65 @@ export const AuthPage: React.FC = () => {
       } else if (mode === 'forgot') {
         if (!email.trim()) throw new Error('Please enter your student email.');
         await resetPassword(email.trim());
-        setSuccessMsg('Password reset link sent! Check your inbox for instructions.');
+        setSuccessMsg('Password reset instructions sent to your email.');
       }
     } catch (err: any) {
       console.error('Auth error:', err);
-      setErrorMsg(err.message || 'An error occurred during authentication. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleDemoLogin = async () => {
-    setErrorMsg(null);
-    setLoading(true);
-    try {
-      await signIn('student@campus.edu', 'Sankalp@2026');
-    } catch (err: any) {
-      setErrorMsg(err.message || 'Failed to login with demo student account.');
+      setErrorMsg(err.message || 'Authentication failed. Please verify your credentials.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen w-full bg-[#070b14] flex flex-col justify-center relative overflow-hidden py-8 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen w-full bg-[#070b14] flex flex-col justify-center relative overflow-hidden py-10 px-4 sm:px-6 lg:px-8">
       {/* Background ambient lighting */}
       <div className="absolute top-0 left-1/4 w-96 h-96 bg-cyan-500/10 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-violet-600/10 rounded-full blur-[140px] pointer-events-none" />
+      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-blue-600/10 rounded-full blur-[140px] pointer-events-none" />
 
-      <div className="max-w-6xl w-full mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 items-center z-10">
-        {/* Left Column: 3D Campus Showcase & Highlights */}
-        <div className="lg:col-span-7 flex flex-col justify-center space-y-6">
-          <div className="space-y-3">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/25 text-cyan-300 text-xs font-mono">
-              <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
-              <span>SANKALP 3D SMART CAMPUS PLATFORM</span>
-            </div>
+      <div className="max-w-5xl w-full mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 items-center z-10">
+        {/* Left Column: Campus Overview & 3D Visualizer */}
+        <div className="lg:col-span-7 flex flex-col justify-center space-y-5">
+          <div className="space-y-2">
+            <span className="text-xs font-mono font-medium tracking-wider text-cyan-400 uppercase">
+              SANKALP • Smart Campus Ecosystem
+            </span>
 
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-white font-sans leading-tight">
-              An Integrated <span className="text-gradient-cyan">Campus Ecosystem</span> for Next-Gen Engineers
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white tracking-tight">
+              An Integrated Platform for <span className="text-gradient-cyan">Campus Productivity</span>
             </h1>
 
-            <p className="text-sm sm:text-base text-slate-300 max-w-xl leading-relaxed">
-              Consolidating student productivity, academic tracking, AI-powered study synthesizers, interactive 3D diagrams, and campus emergency welfare into one unified intelligent dashboard.
+            <p className="text-xs sm:text-sm text-slate-300 max-w-lg leading-relaxed">
+              Consolidating academic tracking, attendance management, AI-assisted study notes, and student welfare into a unified dashboard.
             </p>
           </div>
 
-          {/* 3D Campus Interactive Canvas Hero */}
+          {/* 3D Campus Canvas Hero */}
           <div className="w-full">
-            <CampusCanvas height="h-[340px] sm:h-[380px]" />
+            <CampusCanvas height="h-[280px] sm:h-[320px]" />
           </div>
 
-          {/* Highlight badges */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
-            <div className="p-3 rounded-xl bg-slate-900/60 border border-slate-800 text-center">
-              <p className="text-xs font-mono font-bold text-cyan-400">8 MODULES</p>
-              <p className="text-[10px] text-slate-400">Integrated Tools</p>
-            </div>
-            <div className="p-3 rounded-xl bg-slate-900/60 border border-slate-800 text-center">
-              <p className="text-xs font-mono font-bold text-violet-400">AI SUMMARIZER</p>
-              <p className="text-[10px] text-slate-400">Study Synthesizer</p>
-            </div>
-            <div className="p-3 rounded-xl bg-slate-900/60 border border-slate-800 text-center">
-              <p className="text-xs font-mono font-bold text-emerald-400">RLS SECURITY</p>
-              <p className="text-[10px] text-slate-400">Supabase Isolated</p>
-            </div>
-            <div className="p-3 rounded-xl bg-slate-900/60 border border-slate-800 text-center">
-              <p className="text-xs font-mono font-bold text-rose-400">CAMPUS SOS</p>
-              <p className="text-[10px] text-slate-400">24/7 Student Safety</p>
-            </div>
+          <div className="flex items-center gap-6 text-xs text-slate-400 pt-1">
+            <span className="flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-cyan-400" />
+              8 Functional Modules
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+              Supabase Auth & Database
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-blue-400" />
+              Row Level Security
+            </span>
           </div>
         </div>
 
-        {/* Right Column: Authentication Card */}
+        {/* Right Column: Clean Authentication Card */}
         <div className="lg:col-span-5 w-full">
-          <div className="relative rounded-2xl glass-panel border border-cyan-500/25 p-6 sm:p-8 shadow-2xl">
+          <div className="rounded-2xl glass-panel border border-cyan-500/20 p-6 sm:p-7 shadow-xl">
             {/* Top Auth Mode Tabs */}
-            <div className="flex rounded-xl bg-slate-900/80 p-1 border border-slate-800 mb-6">
+            <div className="flex rounded-xl bg-slate-900/80 p-1 border border-slate-800 mb-5">
               <button
                 type="button"
                 onClick={() => {
@@ -169,39 +149,39 @@ export const AuthPage: React.FC = () => {
                     : 'text-slate-400 hover:text-slate-200'
                 }`}
               >
-                New Student
+                Register
               </button>
             </div>
 
-            <div className="mb-5">
-              <h2 className="text-xl font-bold text-white tracking-tight">
-                {mode === 'login' && 'Welcome Back, Scholar'}
-                {mode === 'register' && 'Create Student Account'}
-                {mode === 'forgot' && 'Reset Student Password'}
+            <div className="mb-4">
+              <h2 className="text-lg font-bold text-white tracking-tight">
+                {mode === 'login' && 'Student Sign In'}
+                {mode === 'register' && 'Student Registration'}
+                {mode === 'forgot' && 'Reset Password'}
               </h2>
-              <p className="text-xs text-slate-400 mt-1">
-                {mode === 'login' && 'Sign in to access your attendance, expenses, and study notes.'}
-                {mode === 'register' && 'Join the SANKALP Smart Campus network with your student credentials.'}
-                {mode === 'forgot' && 'Enter your campus email to receive a recovery link.'}
+              <p className="text-xs text-slate-400 mt-0.5">
+                {mode === 'login' && 'Enter your campus credentials to access your dashboard.'}
+                {mode === 'register' && 'Create your SANKALP account with student details.'}
+                {mode === 'forgot' && 'Enter your email to receive recovery instructions.'}
               </p>
             </div>
 
             {/* Error & Success Messages */}
             {errorMsg && (
-              <div className="mb-4 p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 flex items-start gap-2.5 text-xs text-rose-300">
+              <div className="mb-4 p-3 rounded-xl bg-rose-500/10 border border-rose-500/25 flex items-start gap-2 text-xs text-rose-300">
                 <AlertCircle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
                 <span>{errorMsg}</span>
               </div>
             )}
 
             {successMsg && (
-              <div className="mb-4 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-start gap-2.5 text-xs text-emerald-300">
+              <div className="mb-4 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/25 flex items-start gap-2 text-xs text-emerald-300">
                 <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
                 <span>{successMsg}</span>
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-3.5">
               {mode === 'register' && (
                 <>
                   <div>
@@ -260,7 +240,7 @@ export const AuthPage: React.FC = () => {
 
               {/* Email Input */}
               <div>
-                <label className="text-xs font-medium text-slate-300 block mb-1">Student Email</label>
+                <label className="text-xs font-medium text-slate-300 block mb-1">Email Address</label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-2.5 w-4 h-4 text-slate-400" />
                   <input
@@ -274,7 +254,7 @@ export const AuthPage: React.FC = () => {
                 </div>
               </div>
 
-              {/* Password Input (for login and register) */}
+              {/* Password Input */}
               {mode !== 'forgot' && (
                 <div>
                   <div className="flex items-center justify-between mb-1">
@@ -325,14 +305,14 @@ export const AuthPage: React.FC = () => {
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
                     </svg>
-                    <span>Authenticating...</span>
+                    <span>Processing...</span>
                   </span>
                 ) : (
                   <>
                     <span>
-                      {mode === 'login' && 'Sign In to Campus'}
-                      {mode === 'register' && 'Complete Student Registration'}
-                      {mode === 'forgot' && 'Send Password Reset Link'}
+                      {mode === 'login' && 'Sign In'}
+                      {mode === 'register' && 'Create Account'}
+                      {mode === 'forgot' && 'Send Reset Link'}
                     </span>
                     <ArrowRight className="w-4 h-4" />
                   </>
@@ -351,23 +331,11 @@ export const AuthPage: React.FC = () => {
               </div>
             )}
 
-            {/* Instant Demo Login Button */}
-            <div className="mt-6 pt-5 border-t border-slate-800 text-center space-y-3">
-              <p className="text-[11px] text-slate-400">
-                Want to test all features immediately?
-              </p>
-              <button
-                type="button"
-                onClick={handleDemoLogin}
-                disabled={loading}
-                className="w-full py-2 px-3 rounded-xl border border-cyan-500/30 bg-cyan-950/20 hover:bg-cyan-900/30 text-cyan-300 text-xs font-medium flex items-center justify-center gap-2 transition"
-              >
-                <Sparkles className="w-4 h-4 text-cyan-400" />
-                <span>1-Click Launch with Demo Student Account</span>
-              </button>
-              <div className="flex items-center justify-center gap-1.5 text-[10px] text-slate-500">
+            {/* Bottom Security Note */}
+            <div className="mt-5 pt-4 border-t border-slate-800 text-center">
+              <div className="flex items-center justify-center gap-1.5 text-[11px] text-slate-500">
                 <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-                <span>Encrypted & Protected by Supabase Auth</span>
+                <span>Protected by Supabase Authentication & RLS</span>
               </div>
             </div>
           </div>

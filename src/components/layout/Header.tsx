@@ -105,9 +105,6 @@ export const Header: React.FC<HeaderProps> = ({
                 <span className="font-extrabold tracking-wider text-base text-slate-100 group-hover:text-cyan-400 transition font-sans">
                   SANKALP
                 </span>
-                <span className="text-[10px] px-1.5 py-0.5 rounded font-mono font-medium tracking-widest bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
-                  v2.0
-                </span>
               </div>
               <p className="text-[10px] text-slate-400 hidden sm:block tracking-wide">
                 Smart Campus Ecosystem
@@ -122,7 +119,7 @@ export const Header: React.FC<HeaderProps> = ({
             <Search className="absolute left-3 top-2.5 w-4 h-4 text-slate-400" />
             <input
               type="text"
-              placeholder="Search tools, notes, formulas, codes..."
+              placeholder="Search modules, notes, topics..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-9 pr-10 py-1.5 text-xs rounded-xl glass-input placeholder:text-slate-500 focus:border-cyan-400 transition"
@@ -138,16 +135,16 @@ export const Header: React.FC<HeaderProps> = ({
           {/* Supabase status indicator badge */}
           <button
             onClick={onOpenConfig}
-            className={`hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-mono transition border ${
+            className={`hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-mono transition border ${
               isSupabaseConnected
-                ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/20'
-                : 'bg-amber-500/10 text-amber-300 border-amber-500/30 hover:bg-amber-500/20'
+                ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/25 hover:bg-emerald-500/20'
+                : 'bg-slate-800 text-slate-300 border-slate-700 hover:border-cyan-500/30'
             }`}
-            title={isSupabaseConnected ? 'Connected to live Supabase Postgres' : 'Running in Offline / Demo Storage'}
+            title={isSupabaseConnected ? 'Connected to Supabase Database' : 'Local Storage Mode (Click to configure Supabase)'}
           >
             <Database className="w-3.5 h-3.5" />
-            <span>{isSupabaseConnected ? 'Supabase Live' : 'Demo Mode'}</span>
-            <span className={`w-2 h-2 rounded-full ${isSupabaseConnected ? 'bg-emerald-400' : 'bg-amber-400 animate-pulse'}`} />
+            <span>{isSupabaseConnected ? 'Supabase' : 'Database Setup'}</span>
+            <span className={`w-1.5 h-1.5 rounded-full ${isSupabaseConnected ? 'bg-emerald-400' : 'bg-slate-400'}`} />
           </button>
 
           {/* Notifications Popover */}

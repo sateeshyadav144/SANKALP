@@ -49,23 +49,6 @@ export const App: React.FC = () => {
   // Authenticated: Render Main Application Shell
   return (
     <div className="min-h-screen bg-[#070b14] text-slate-100 flex flex-col font-sans selection:bg-cyan-500/30 selection:text-cyan-200">
-      {/* Top Demo Banner if Supabase is not yet connected */}
-      {!isSupabaseConnected && (
-        <div className="bg-gradient-to-r from-amber-950/80 via-slate-900 to-amber-950/80 border-b border-amber-500/25 px-4 py-2 text-center text-xs text-amber-200 flex items-center justify-center gap-2">
-          <Database className="w-4 h-4 text-amber-400 shrink-0" />
-          <span>
-            <strong>Demo Storage Active:</strong> Running in persistent local storage. Connect your live Supabase project anytime in{' '}
-            <button
-              onClick={() => setIsConfigModalOpen(true)}
-              className="underline font-bold text-cyan-300 hover:text-cyan-200"
-            >
-              Database & AI Setup
-            </button>
-            .
-          </span>
-        </div>
-      )}
-
       {/* Main Top Header */}
       <Header
         activeModule={activeModule}
@@ -101,18 +84,15 @@ export const App: React.FC = () => {
           {activeModule === 'code' && <CodeStudio />}
           {activeModule === 'safety' && <SafetyWelfare />}
 
-          {/* Consistent Footer */}
-          <footer className="mt-16 pt-8 pb-6 border-t border-slate-800/80 text-center text-xs text-slate-500 space-y-2">
+          {/* Clean Footer */}
+          <footer className="mt-12 pt-6 pb-6 border-t border-slate-800/60 text-center text-xs text-slate-500">
             <div className="flex items-center justify-center gap-2 font-mono text-[11px] text-slate-400">
               <span className="font-bold text-cyan-400">SANKALP</span>
               <span>•</span>
-              <span>Integrated 3D Smart Campus Ecosystem</span>
+              <span>Smart Campus Ecosystem</span>
               <span>•</span>
-              <span>College of Engineering & Technology</span>
+              <span>College Project</span>
             </div>
-            <p className="text-[11px]">
-              Engineered for academic productivity, coding practice, and student safety.
-            </p>
           </footer>
         </main>
       </div>

@@ -191,12 +191,12 @@ export const FlashcardDeck: React.FC = () => {
             <div className="p-2 rounded-xl bg-purple-500/10 text-purple-400 border border-purple-500/20">
               <Layers className="w-5 h-5" />
             </div>
-            <h1 className="text-xl sm:text-2xl font-extrabold text-white tracking-tight">
-              3D Flashcard Deck & Spaced Repetition
+            <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
+              Flashcards & Spaced Repetition
             </h1>
           </div>
           <p className="text-xs text-slate-400 mt-1">
-            Master engineering formulas, algorithm invariants, and system definitions with interactive 3D flip cards.
+            Practice active recall for course definitions, formulas, and algorithms with interactive flip cards.
           </p>
         </div>
 

@@ -147,19 +147,13 @@ export const SpeechReader: React.FC = () => {
             <div className="p-2 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20">
               <Volume2 className="w-5 h-5" />
             </div>
-            <h1 className="text-xl sm:text-2xl font-extrabold text-white tracking-tight">
-              Text-to-Speech & Lecture Audio Reader
+            <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
+              Text-to-Speech Reader
             </h1>
           </div>
           <p className="text-xs text-slate-400 mt-1">
-            Listen to your lecture notes, textbook summaries, and revision flashcards hands-free with native speech synthesis.
+            Listen to lecture notes, textbook summaries, and revision materials with native browser speech synthesis.
           </p>
-        </div>
-
-        {/* Privacy badge */}
-        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-900/80 border border-slate-800 text-xs text-slate-300 font-mono">
-          <ShieldCheck className="w-4 h-4 text-emerald-400" />
-          <span>100% Client-Side Private Audio</span>
         </div>
       </div>
 

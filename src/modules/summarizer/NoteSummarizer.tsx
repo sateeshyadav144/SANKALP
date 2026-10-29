@@ -321,12 +321,12 @@ ${content}`;
             <div className="p-2 rounded-xl bg-violet-500/10 text-violet-400 border border-violet-500/20">
               <Sparkles className="w-5 h-5" />
             </div>
-            <h1 className="text-xl sm:text-2xl font-extrabold text-white tracking-tight">
-              AI Note Summarizer & Study Synthesizer
+            <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
+              AI Note Summarizer
             </h1>
           </div>
           <p className="text-xs text-slate-400 mt-1">
-            Transform lengthy lecture transcripts, research papers, and textbook chapters into concise summaries, key points, and revision items.
+            Transform lecture transcripts and notes into concise summaries, key points, and study action items.
           </p>
         </div>
 

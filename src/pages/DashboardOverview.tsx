@@ -65,68 +65,63 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
   };
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-300">
-      {/* Top Welcome Banner with Student Telemetry */}
-      <div className="relative overflow-hidden rounded-2xl glass-panel border border-cyan-500/20 p-6 sm:p-8 bg-gradient-to-r from-slate-900/90 via-[#0b1426]/80 to-[#101b36]/90 shadow-2xl">
-        <div className="absolute top-0 right-0 -mt-12 -mr-12 w-64 h-64 rounded-full bg-cyan-500/10 blur-[80px] pointer-events-none" />
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="space-y-2">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/25 text-cyan-300 text-xs font-mono">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span>ACADEMIC SEMESTER ACTIVE • {user?.semester || '6th Semester'}</span>
+    <div className="space-y-6 animate-in fade-in duration-300">
+      {/* Top Welcome Banner with Student Details */}
+      <div className="rounded-2xl glass-panel border border-cyan-500/20 p-5 sm:p-6 bg-gradient-to-r from-slate-900/90 via-[#0b1426]/80 to-[#101b36]/90 shadow-xl">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-5">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2 text-xs font-mono text-cyan-400">
+              <span>{user?.department || 'Computer Science & Engineering'}</span>
+              <span>•</span>
+              <span>{user?.semester || '6th Semester'}</span>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-              {getGreeting()}, <span className="text-gradient-cyan">{user?.full_name}</span> 👋
+            <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
+              {getGreeting()}, <span className="text-gradient-cyan">{user?.full_name}</span>
             </h1>
-            <p className="text-xs sm:text-sm text-slate-300 max-w-2xl leading-relaxed">
-              Welcome to your connected intelligent student workspace. All eight modules are live with persistent database storage, real-time analytics, and campus welfare.
+            <p className="text-xs text-slate-300 max-w-xl">
+              Academic semester overview, module telemetry, and student productivity tools.
             </p>
           </div>
 
-          {/* Quick Action Hub */}
-          <div className="flex flex-wrap items-center gap-2.5">
+          {/* Quick Actions */}
+          <div className="flex flex-wrap items-center gap-2">
             <button
               onClick={() => onSelectModule('attendance')}
-              className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 text-cyan-300 text-xs font-medium transition shadow-glow-cyan"
+              className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 text-cyan-300 text-xs font-medium transition"
             >
-              <CalendarCheck className="w-4 h-4 text-cyan-400" />
+              <CalendarCheck className="w-3.5 h-3.5 text-cyan-400" />
               <span>Mark Attendance</span>
             </button>
             <button
               onClick={() => onSelectModule('expenses')}
-              className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-xs font-medium transition"
+              className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-xs font-medium transition"
             >
-              <Wallet className="w-4 h-4 text-emerald-400" />
+              <Wallet className="w-3.5 h-3.5 text-emerald-400" />
               <span>Log Expense</span>
             </button>
             <button
               onClick={() => onSelectModule('summarizer')}
-              className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-violet-500/10 hover:bg-violet-500/20 border border-violet-500/30 text-violet-300 text-xs font-medium transition"
+              className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-violet-500/10 hover:bg-violet-500/20 border border-violet-500/30 text-violet-300 text-xs font-medium transition"
             >
-              <Sparkles className="w-4 h-4 text-violet-400" />
+              <Sparkles className="w-3.5 h-3.5 text-violet-400" />
               <span>AI Notes</span>
             </button>
           </div>
         </div>
       </div>
 
-      {/* 3D Campus Interactive Hub Section */}
-      <div className="space-y-3">
+      {/* 3D Campus Mesh Section */}
+      <div className="space-y-2">
         <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-sm font-bold uppercase tracking-wider text-cyan-400 font-mono flex items-center gap-2">
-              <Compass className="w-4 h-4 text-cyan-400" />
-              <span>Connected 3D Campus Telemetry</span>
-            </h2>
-            <p className="text-xs text-slate-400">
-              Interactive WebGL node mesh connecting your 8 intelligent student modules
-            </p>
-          </div>
+          <h2 className="text-xs font-bold uppercase tracking-wider text-cyan-400 font-mono flex items-center gap-2">
+            <Compass className="w-3.5 h-3.5 text-cyan-400" />
+            <span>Campus Module Mesh</span>
+          </h2>
           <span className="text-[11px] font-mono text-slate-500 hidden sm:block">
-            Hover nodes to inspect
+            Interactive 3D Visualizer
           </span>
         </div>
-        <CampusCanvas onNodeSelect={(id) => onSelectModule(id)} height="h-[360px]" />
+        <CampusCanvas onNodeSelect={(id) => onSelectModule(id)} height="h-[240px] sm:h-[260px]" />
       </div>
 
       {/* Dynamic Key Performance Metrics (Real calculated DB queries) */}
@@ -252,51 +247,44 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
         </div>
       </div>
 
-      {/* The 8 Module Cards Grid (Primary Navigation with realistic status) */}
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-base font-bold text-white tracking-tight">
-              All 8 Smart Campus Modules
-            </h2>
-            <p className="text-xs text-slate-400">
-              Select any module to open full management, data persistence, and utilities
-            </p>
-          </div>
+      {/* The 8 Module Cards Grid */}
+      <div className="space-y-3">
+        <div>
+          <h2 className="text-base font-bold text-white tracking-tight">
+            Smart Campus Modules
+          </h2>
+          <p className="text-xs text-slate-400">
+            Select a module to view records, perform operations, and access tools.
+          </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3.5">
           {MODULE_LIST.filter((m) => m.id !== 'dashboard').map((mod) => {
             const Icon = mod.icon;
             return (
               <div
                 key={mod.id}
                 onClick={() => onSelectModule(mod.id)}
-                className="group relative p-5 rounded-2xl glass-panel border border-slate-800/80 hover:border-cyan-500/40 hover:shadow-glow-cyan transition-all duration-300 cursor-pointer flex flex-col justify-between"
+                className="group p-4 rounded-xl glass-panel border border-slate-800/80 hover:border-cyan-500/30 transition-all duration-200 cursor-pointer flex flex-col justify-between"
               >
                 <div>
-                  <div className="flex items-center justify-between mb-3">
-                    <div className={`p-2.5 rounded-xl ${mod.color} bg-slate-900/80 border border-slate-800 group-hover:scale-110 transition-transform`}>
-                      <Icon className="w-5 h-5" />
+                  <div className="flex items-center justify-between mb-2.5">
+                    <div className={`p-2 rounded-lg ${mod.color} bg-slate-900/80 border border-slate-800`}>
+                      <Icon className="w-4 h-4" />
                     </div>
-                    {mod.badge && (
-                      <span className={`text-[10px] font-mono px-2 py-0.5 rounded-full border ${mod.badgeColor}`}>
-                        {mod.badge}
-                      </span>
-                    )}
                   </div>
 
-                  <h3 className="text-sm font-bold text-slate-100 group-hover:text-cyan-300 transition">
+                  <h3 className="text-xs font-semibold text-slate-100 group-hover:text-cyan-300 transition">
                     {mod.name}
                   </h3>
-                  <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+                  <p className="text-[11px] text-slate-400 mt-0.5 leading-normal">
                     {mod.desc}
                   </p>
                 </div>
 
-                <div className="mt-4 pt-3 border-t border-slate-800/60 flex items-center justify-between text-xs font-medium text-slate-400 group-hover:text-cyan-300 transition">
-                  <span>Launch Tool</span>
-                  <ChevronRight className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" />
+                <div className="mt-3.5 pt-2.5 border-t border-slate-800/60 flex items-center justify-between text-[11px] font-medium text-slate-400 group-hover:text-cyan-300 transition">
+                  <span>Open Module</span>
+                  <ChevronRight className="w-3.5 h-3.5 transform group-hover:translate-x-0.5 transition-transform" />
                 </div>
               </div>
             );

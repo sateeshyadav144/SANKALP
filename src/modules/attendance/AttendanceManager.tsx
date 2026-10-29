@@ -160,12 +160,12 @@ export const AttendanceManager: React.FC = () => {
             <div className="p-2 rounded-xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
               <CalendarCheck className="w-5 h-5" />
             </div>
-            <h1 className="text-xl sm:text-2xl font-extrabold text-white tracking-tight">
-              Attendance Manager & Course Eligibility
+            <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
+              Attendance Manager
             </h1>
           </div>
           <p className="text-xs text-slate-400 mt-1">
-            Track daily class attendance, prevent exam debarment with 75% target warnings, and maintain persistent audit logs.
+            Track daily course attendance, monitor attendance criteria, and view detailed subject logs.
           </p>
         </div>
 

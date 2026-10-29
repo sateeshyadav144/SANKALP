@@ -369,12 +369,12 @@ export const CodeStudio: React.FC = () => {
             <div className="p-2 rounded-xl bg-blue-500/10 text-blue-400 border border-blue-500/20">
               <Code2 className="w-5 h-5" />
             </div>
-            <h1 className="text-xl sm:text-2xl font-extrabold text-white tracking-tight">
-              Integrated Code Studio & Sandbox
+            <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
+              Code Editor
             </h1>
           </div>
           <p className="text-xs text-slate-400 mt-1">
-            Write, test, and persist algorithm programs in JavaScript, Python, C, and HTML with Monaco syntax editor and safe sandbox execution.
+            Write, test, and save algorithm implementations and code snippets in an interactive sandbox.
           </p>
         </div>
 
