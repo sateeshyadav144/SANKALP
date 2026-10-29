@@ -17,7 +17,7 @@ import { CampusCanvas } from '../components/3d/CampusCanvas';
 type AuthMode = 'login' | 'register' | 'forgot';
 
 export const AuthPage: React.FC = () => {
-  const { signIn, signUp, resetPassword } = useAuth();
+  const { signIn, signUp, signInAsGuest, resetPassword } = useAuth();
   const [mode, setMode] = useState<AuthMode>('login');
 
   // Form states
@@ -51,7 +51,7 @@ export const AuthPage: React.FC = () => {
         if (!email.trim()) throw new Error('Please enter a valid student email.');
         if (password.length < 6) throw new Error('Password must be at least 6 characters.');
 
-        await signUp({
+        const res = await signUp({
           email: email.trim(),
           password,
           full_name: fullName.trim(),
@@ -59,6 +59,13 @@ export const AuthPage: React.FC = () => {
           department,
           semester,
         });
+
+        if (res && (res as any).session) {
+          // Logged in automatically
+        } else {
+          setSuccessMsg('Account registered successfully! If email confirmation is enabled in your Supabase project, check your inbox to confirm, or turn off "Confirm email" in Supabase -> Authentication -> Providers -> Email.');
+          setMode('login');
+        }
       } else if (mode === 'forgot') {
         if (!email.trim()) throw new Error('Please enter your student email.');
         await resetPassword(email.trim());
@@ -320,9 +327,44 @@ export const AuthPage: React.FC = () => {
               </button>
             </form>
 
+            {mode === 'login' && (
+              <div className="mt-4 text-center">
+                <span className="text-xs text-slate-400">Don't have an account yet? </span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMode('register');
+                    setErrorMsg(null);
+                    setSuccessMsg(null);
+                  }}
+                  className="text-xs font-semibold text-cyan-400 hover:underline"
+                >
+                  Create Account
+                </button>
+              </div>
+            )}
+
+            {mode === 'register' && (
+              <div className="mt-4 text-center">
+                <span className="text-xs text-slate-400">Already registered? </span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMode('login');
+                    setErrorMsg(null);
+                    setSuccessMsg(null);
+                  }}
+                  className="text-xs font-semibold text-cyan-400 hover:underline"
+                >
+                  Sign In
+                </button>
+              </div>
+            )}
+
             {mode === 'forgot' && (
               <div className="mt-4 text-center">
                 <button
+                  type="button"
                   onClick={() => setMode('login')}
                   className="text-xs text-cyan-400 hover:underline"
                 >
@@ -330,6 +372,17 @@ export const AuthPage: React.FC = () => {
                 </button>
               </div>
             )}
+
+            {/* Offline / Quick Demo Mode Link */}
+            <div className="mt-4 pt-3 border-t border-slate-800/80 text-center">
+              <button
+                type="button"
+                onClick={signInAsGuest}
+                className="text-[11px] text-slate-400 hover:text-cyan-300 transition underline underline-offset-4"
+              >
+                Or explore SANKALP in Demo / Offline Mode →
+              </button>
+            </div>
 
             {/* Bottom Security Note */}
             <div className="mt-5 pt-4 border-t border-slate-800 text-center">

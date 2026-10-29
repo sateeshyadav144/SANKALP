@@ -9,7 +9,8 @@ interface AuthContextType {
   loading: boolean;
   isSupabaseConnected: boolean;
   signIn: (email: string, password?: string) => Promise<void>;
-  signUp: (data: { email: string; password?: string; full_name: string; roll_number?: string; department?: string; semester?: string }) => Promise<void>;
+  signUp: (data: { email: string; password?: string; full_name: string; roll_number?: string; department?: string; semester?: string }) => Promise<{ user?: any; session?: any } | void>;
+  signInAsGuest: () => void;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
   updateProfile: (profile: Partial<StudentProfile>) => Promise<void>;
@@ -113,7 +114,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (isSupabaseConfigured && supabase) {
         if (!password) throw new Error('Password is required');
         const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) throw error;
+        if (error) {
+          const lowerMsg = (error.message || '').toLowerCase();
+          if (lowerMsg.includes('email not confirmed')) {
+            throw new Error('Email not confirmed. Please check your email inbox to verify, or disable "Confirm email" in your Supabase Dashboard under Authentication -> Providers -> Email.');
+          }
+          if (lowerMsg.includes('invalid login credentials')) {
+            throw new Error('Invalid login credentials. If you haven\'t created an account yet, click "Register" to sign up first. If you just registered, please verify your email first.');
+          }
+          throw error;
+        }
       } else {
         // Mock Auth Sign In
         await new Promise(r => setTimeout(r, 400));
@@ -145,7 +155,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       if (isSupabaseConfigured && supabase) {
         if (!data.password) throw new Error('Password is required');
-        const { error } = await supabase.auth.signUp({
+        const { data: authData, error } = await supabase.auth.signUp({
           email: data.email,
           password: data.password,
           options: {
@@ -158,6 +168,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           },
         });
         if (error) throw error;
+        return authData;
       } else {
         // Local registration
         await new Promise(r => setTimeout(r, 400));
@@ -175,10 +186,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         localStore.saveProfile(newProf);
         localStorage.setItem('sankalp_auth_logged_in', 'true');
         setUser(newProf);
+        return { user: newProf, session: {} as any };
       }
     } finally {
       setLoading(false);
     }
+  };
+
+  const signInAsGuest = () => {
+    const profile = localStore.getProfile();
+    localStorage.setItem('sankalp_auth_logged_in', 'true');
+    setUser(profile);
   };
 
   const signOut = async () => {
@@ -230,6 +248,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       isSupabaseConnected: isSupabaseConfigured,
       signIn,
       signUp,
+      signInAsGuest,
       signOut,
       resetPassword,
       updateProfile,
