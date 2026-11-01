@@ -1,23 +1,53 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
   <defs>
-    <linearGradient id="sankalpGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#06b6d4" />
-      <stop offset="50%" stop-color="#38bdf8" />
-      <stop offset="100%" stop-color="#8b5cf6" />
+    <linearGradient id="favHalo" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#085ED6" stop-opacity="0.5" />
+      <stop offset="50%" stop-color="#00D9FF" stop-opacity="0.9" />
+      <stop offset="100%" stop-color="#00F0FF" />
     </linearGradient>
-    <linearGradient id="innerGlow" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.8" />
-      <stop offset="100%" stop-color="#070b14" stop-opacity="0.2" />
+    <linearGradient id="favCap" x1="50%" y1="0%" x2="50%" y2="100%">
+      <stop offset="0%" stop-color="#00D9FF" />
+      <stop offset="40%" stop-color="#0084FF" />
+      <stop offset="100%" stop-color="#063D94" />
+    </linearGradient>
+    <linearGradient id="favPage" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#00F0FF" />
+      <stop offset="60%" stop-color="#0080FF" />
+      <stop offset="100%" stop-color="#022152" />
+    </linearGradient>
+    <linearGradient id="favS" x1="30%" y1="0%" x2="70%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF" />
+      <stop offset="25%" stop-color="#00E5FF" />
+      <stop offset="70%" stop-color="#0088FF" />
+      <stop offset="100%" stop-color="#004FB8" />
+    </linearGradient>
+    <linearGradient id="favSpine" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#0072FF" />
+      <stop offset="50%" stop-color="#00E1FF" />
+      <stop offset="100%" stop-color="#0072FF" />
     </linearGradient>
   </defs>
-  <rect width="64" height="64" rx="16" fill="#070b14" stroke="#38bdf8" stroke-width="2" stroke-opacity="0.4"/>
-  <!-- Isometric 3D Hexagon Campus Core -->
-  <path d="M32 10 L52 21.5 V44.5 L32 56 L12 44.5 V21.5 Z" fill="url(#innerGlow)" stroke="url(#sankalpGrad)" stroke-width="2.5" stroke-linejoin="round"/>
-  <!-- 3D Internal Axes -->
-  <path d="M32 33 L52 21.5" stroke="url(#sankalpGrad)" stroke-width="2"/>
-  <path d="M32 33 L12 21.5" stroke="url(#sankalpGrad)" stroke-width="2"/>
-  <path d="M32 33 V56" stroke="url(#sankalpGrad)" stroke-width="2"/>
-  <!-- Glowing Center Node -->
-  <circle cx="32" cy="33" r="4" fill="#38bdf8"/>
-  <circle cx="32" cy="33" r="7" stroke="#06b6d4" stroke-width="1.5" stroke-dasharray="2 2"/>
+
+  <!-- Deep Midnight Rounded Background -->
+  <rect width="100" height="100" rx="24" fill="#020813" />
+  <rect width="98" height="98" x="1" y="1" rx="23" stroke="#00D9FF" stroke-width="1.5" stroke-opacity="0.4" />
+
+  <!-- 1. Top Halo Arc -->
+  <path d="M17 48 C 17 22, 83 22, 83 48" stroke="url(#favHalo)" stroke-width="2.5" stroke-linecap="round" fill="none" />
+
+  <!-- 2. Graduation Cap -->
+  <path d="M50 18 L77 28.5 L50 39 L23 28.5 Z" fill="url(#favCap)" stroke="#00D9FF" stroke-width="1.2" stroke-linejoin="round" />
+  <path d="M36 33.5 C 36 33.5, 36 43, 50 43 C 64 43, 64 33.5, 64 33.5 Z" fill="url(#favCap)" stroke="#00A2FF" stroke-width="0.8" opacity="0.9" />
+  <path d="M50 28.5 C 57 28.5, 75 30, 76 36 L 76 43" stroke="#00E5FF" stroke-width="1.4" stroke-linecap="round" fill="none" />
+  <circle cx="76" cy="44" r="1.5" fill="#FFFFFF" />
+
+  <!-- 3. Open Book Symbol -->
+  <path d="M19 46.5 C 31 43.5, 43 47, 49 53 L 49 76 C 43 70, 31 67.5, 19 70.5 Z" fill="url(#favPage)" stroke="#00D9FF" stroke-width="1.2" stroke-linejoin="round" />
+  <path d="M81 46.5 C 69 43.5, 57 47, 51 53 L 51 76 C 57 70, 69 67.5, 81 70.5 Z" fill="url(#favPage)" stroke="#00D9FF" stroke-width="1.2" stroke-linejoin="round" />
+  <path d="M15 51 C 26 49, 39 51, 46 56 L 46 78 C 39 74, 26 72, 15 74 Z" fill="#031A40" stroke="#0072FF" stroke-width="0.9" opacity="0.85" />
+  <path d="M85 51 C 74 49, 61 51, 54 56 L 54 78 C 61 74, 74 72, 85 74 Z" fill="#031A40" stroke="#0072FF" stroke-width="0.9" opacity="0.85" />
+  <path d="M17 73.5 C 31 70, 43 72.5, 49 78 C 55 72.5, 67 70, 81 73.5 L 83 77 C 68 73, 56 75.5, 50 82 C 44 75.5, 32 73, 17 77 Z" fill="url(#favSpine)" opacity="0.95" />
+
+  <!-- 4. Integrated Letter S in Center -->
+  <path d="M57.5 45 C 54 44.2, 45 44.5, 44 49 C 43 53.5, 48.5 54.8, 52.5 56.5 C 57.5 58.5, 61.5 61, 60.5 67 C 59.5 73.5, 52 75.5, 43 74 L 42 69 C 48 70.5, 55 69.5, 55.5 66 C 56 62.5, 51.5 61, 47.5 59.5 C 42.5 57.5, 38.5 54.5, 39.5 48.5 C 40.5 42, 48 39.5, 56.5 40 Z" fill="url(#favS)" stroke="#00D9FF" stroke-width="0.8" />
 </svg>

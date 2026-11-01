@@ -175,8 +175,8 @@ function FloatingCyberParticles({ count = 40 }) {
 // Lightweight 2D/SVG Canvas Fallback for devices without WebGL
 export function Campus2DFallback({ onNodeSelect }: { onNodeSelect?: (id: string) => void }) {
   return (
-    <div className="relative w-full h-full min-h-[260px] flex items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-br from-[#070b14] via-[#0d1629] to-[#121d38] border border-cyan-500/20 shadow-xl">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(6,182,212,0.1)_0,transparent_70%)]" />
+    <div className="relative w-full h-full min-h-[260px] flex items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-br from-[#020B1A] via-[#061329] to-[#071B35] border border-[#17365C] shadow-xl">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(0,217,255,0.1)_0,transparent_70%)]" />
       
       {/* Circuit Rings */}
       <div className="relative w-56 h-56 rounded-full border border-cyan-500/20 flex items-center justify-center">

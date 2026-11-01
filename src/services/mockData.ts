@@ -1,4 +1,4 @@
-import { StudentProfile, Budget, Expense, Subject, AttendanceRecord, Note, Diagram, Flashcard, CodeSnippet, SafetyResource } from '../types';
+import { StudentProfile, Budget, Expense, Subject, AttendanceRecord, Note, Diagram, Flashcard, FlashcardDeck, CodeSnippet, SafetyResource } from '../types';
 
 export const INITIAL_MOCK_USER: StudentProfile = {
   id: 'usr_demo_sankalp_2026',
@@ -236,14 +236,14 @@ export const INITIAL_MOCK_DIAGRAMS: Diagram[] = [
     diagram_type: 'flowchart',
     description: 'Detailed flow of client credentials, token generation, API gateway routing, and isolated database RLS policies.',
     mermaid_code: `flowchart TD
-    Client[Web/Mobile Client] -->|1. Credentials| Gateway[Sankalp API Gateway]
-    Gateway -->|2. Verify| Auth[Supabase Auth Service]
-    Auth -->|3. Signed JWT| Client
-    Client -->|4. Bearer Token| Gateway
-    Gateway -->|5. Token Relay| Service[Campus Services Engine]
-    Service -->|6. RLS Query (auth.uid)| DB[(PostgreSQL + RLS)]
-    DB -->|7. Isolated Student Data| Service
-    Service -->|8. JSON Response| Client`,
+    Client["Web / Mobile Client"] -->|"1. Credentials"| Gateway["Sankalp API Gateway"]
+    Gateway -->|"2. Verify"| Auth["Supabase Auth Service"]
+    Auth -->|"3. Signed JWT"| Client
+    Client -->|"4. Bearer Token"| Gateway
+    Gateway -->|"5. Token Relay"| Service["Campus Services Engine"]
+    Service -->|"6. RLS Query (auth.uid)"| DB[("PostgreSQL + RLS")]
+    DB -->|"7. Isolated Student Data"| Service
+    Service -->|"8. JSON Response"| Client`,
     created_at: new Date(Date.now() - 4 * 24 * 3600 * 1000).toISOString(),
     updated_at: new Date(Date.now() - 4 * 24 * 3600 * 1000).toISOString(),
   },
@@ -269,9 +269,40 @@ export const INITIAL_MOCK_DIAGRAMS: Diagram[] = [
   }
 ];
 
+export const INITIAL_MOCK_DECKS: FlashcardDeck[] = [
+  {
+    id: 'deck_os_01',
+    user_id: INITIAL_MOCK_USER.id,
+    title: 'Operating Systems & Kernels',
+    subject: 'Computer Science',
+    description: 'Virtual memory, page replacement algorithms, Belady anomaly, and process synchronization.',
+    created_at: new Date(Date.now() - 5 * 24 * 3600 * 1000).toISOString(),
+    updated_at: new Date(Date.now() - 1 * 24 * 3600 * 1000).toISOString(),
+  },
+  {
+    id: 'deck_algo_02',
+    user_id: INITIAL_MOCK_USER.id,
+    title: 'Algorithms & Complexity',
+    subject: 'Computer Science',
+    description: 'Master theorem, recurrence relations, complexity classes, and graph traversal.',
+    created_at: new Date(Date.now() - 4 * 24 * 3600 * 1000).toISOString(),
+    updated_at: new Date(Date.now() - 2 * 24 * 3600 * 1000).toISOString(),
+  },
+  {
+    id: 'deck_db_03',
+    user_id: INITIAL_MOCK_USER.id,
+    title: 'Database Transactions & Networks',
+    subject: 'Information Technology',
+    description: 'ANSI SQL isolation levels, concurrency anomalies, and TCP 3-way handshake mechanics.',
+    created_at: new Date(Date.now() - 3 * 24 * 3600 * 1000).toISOString(),
+    updated_at: new Date(Date.now() - 3 * 24 * 3600 * 1000).toISOString(),
+  },
+];
+
 export const INITIAL_MOCK_FLASHCARDS: Flashcard[] = [
   {
     id: 'fc_001',
+    deck_id: 'deck_os_01',
     user_id: INITIAL_MOCK_USER.id,
     subject: 'Operating Systems & Kernels',
     topic: 'Virtual Memory',
@@ -286,6 +317,7 @@ export const INITIAL_MOCK_FLASHCARDS: Flashcard[] = [
   },
   {
     id: 'fc_002',
+    deck_id: 'deck_algo_02',
     user_id: INITIAL_MOCK_USER.id,
     subject: 'Design & Analysis of Algorithms',
     topic: 'Complexity Theory',
@@ -300,6 +332,7 @@ export const INITIAL_MOCK_FLASHCARDS: Flashcard[] = [
   },
   {
     id: 'fc_003',
+    deck_id: 'deck_db_03',
     user_id: INITIAL_MOCK_USER.id,
     subject: 'Database Engineering (PostgreSQL & NoSQL)',
     topic: 'Transactions',
@@ -314,6 +347,7 @@ export const INITIAL_MOCK_FLASHCARDS: Flashcard[] = [
   },
   {
     id: 'fc_004',
+    deck_id: 'deck_db_03',
     user_id: INITIAL_MOCK_USER.id,
     subject: 'Computer Networks & Security',
     topic: 'Transport Layer',

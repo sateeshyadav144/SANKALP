@@ -40,9 +40,11 @@ export interface Subject {
   id: string;
   user_id: string;
   name: string;
+  subject_name?: string;
   code?: string;
+  subject_code?: string;
   instructor?: string;
-  target_attendance_percentage: number;
+  target_attendance_percentage?: number;
   created_at?: string;
 }
 
@@ -51,9 +53,11 @@ export interface AttendanceRecord {
   user_id: string;
   subject_id: string;
   date: string; // YYYY-MM-DD
-  status: 'present' | 'absent' | 'cancelled';
+  attendance_date?: string; // YYYY-MM-DD
+  status: 'Present' | 'Absent' | 'present' | 'absent' | 'cancelled';
   notes?: string;
   created_at?: string;
+  updated_at?: string;
 }
 
 export interface SubjectAttendanceStat {
@@ -83,16 +87,83 @@ export interface Note {
   updated_at?: string;
 }
 
-export type DiagramType = 'flowchart' | 'sequence' | 'classDiagram' | 'stateDiagram' | 'mindmap' | 'gantt';
+export type DiagramType = 
+  | 'flowchart' 
+  | 'mindmap' 
+  | 'block' 
+  | 'concept' 
+  | 'sequence' 
+  | 'usecase' 
+  | 'classDiagram' 
+  | 'erDiagram' 
+  | 'dfd' 
+  | 'architecture' 
+  | 'stateDiagram' 
+  | 'gantt';
+
+export interface SourceDocument {
+  id: string;
+  user_id: string;
+  file_name: string;
+  file_size: number;
+  page_count: number;
+  storage_path?: string;
+  processing_status: 'processing' | 'completed' | 'error';
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface ExtractedTopic {
+  id: string;
+  document_id: string;
+  user_id: string;
+  parent_topic_id?: string | null;
+  topic_number: string;
+  topic_title: string;
+  subtopics: string[];
+  extracted_content: string;
+  page_references: number[];
+  suggested_diagram_types?: DiagramType[];
+  display_order: number;
+  created_at?: string;
+}
+
+export interface PdfExtractionResult {
+  fileName: string;
+  fileSize: number;
+  pageCount: number;
+  pages: Array<{
+    pageNumber: number;
+    text: string;
+    charCount: number;
+  }>;
+  fullText: string;
+  isEncrypted: boolean;
+  hasContent: boolean;
+  error?: string;
+}
 
 export interface Diagram {
   id: string;
   user_id: string;
+  document_id?: string;
+  topic_id?: string;
   title: string;
   subject: string;
   topic?: string;
   diagram_type: DiagramType;
   mermaid_code: string;
+  description?: string;
+  page_references?: string | number[];
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface FlashcardDeck {
+  id: string;
+  user_id: string;
+  title: string;
+  subject?: string;
   description?: string;
   created_at?: string;
   updated_at?: string;
@@ -100,32 +171,45 @@ export interface Diagram {
 
 export interface Flashcard {
   id: string;
+  deck_id?: string;
   user_id: string;
   subject: string;
   topic?: string;
   question: string;
   answer: string;
   hint?: string;
-  difficulty: 'easy' | 'medium' | 'hard';
+  difficulty?: 'easy' | 'medium' | 'hard';
   times_reviewed: number;
   times_correct: number;
   last_reviewed_at?: string;
   created_at?: string;
+  updated_at?: string;
 }
 
 export interface FlashcardReview {
   id: string;
   user_id: string;
   card_id: string;
-  rating: 'easy' | 'good' | 'hard';
+  flashcard_id?: string;
+  status: 'known' | 'revision';
+  rating?: 'easy' | 'good' | 'hard';
   reviewed_at: string;
+}
+
+export interface DeckWithStats extends FlashcardDeck {
+  totalCards: number;
+  knownCards: number;
+  revisionCards: number;
+  notReviewedCards: number;
+  completionRate: number;
+  lastReviewedDate?: string;
 }
 
 export interface CodeSnippet {
   id: string;
   user_id: string;
   title: string;
-  language: 'javascript' | 'typescript' | 'python' | 'html' | 'c' | 'cpp';
+  language: 'javascript' | 'typescript' | 'python' | 'html' | 'css' | 'c' | 'cpp';
   code: string;
   description?: string;
   output?: string;
@@ -171,3 +255,100 @@ export interface OverallDashboardStats {
   totalDiagrams: number;
   lowAttendanceCount: number;
 }
+
+export type VoiceInstallationStatus =
+  | 'installed_local'
+  | 'available_cloud'
+  | 'not_installed'
+  | 'unsupported_by_provider';
+
+export interface IndianLanguageOption {
+  code: string;
+  iso639: string;
+  name: string;
+  nativeName: string;
+  script: string;
+  sampleGreeting: string;
+  windowsPackName?: string;
+  windowsSpeechPackAvailable: boolean;
+  cloudTtsSupported: boolean;
+  alternativeLang?: string;
+}
+
+export interface VoiceMeta {
+  voiceURI: string;
+  name: string;
+  lang: string;
+  gender: 'male' | 'female' | 'unspecified';
+  isLocal: boolean;
+  provider?: 'local' | 'cloud';
+}
+
+export interface SavedSpeechNote {
+  id: string;
+  user_id: string;
+  title: string;
+  text: string;
+  language_code: string;
+  language_name: string;
+  voice_name: string;
+  voice_gender: 'male' | 'female' | 'unspecified';
+  created_at: string;
+}
+
+// ============================================================================
+// STUDENT SAFETY & WELFARE TYPES
+// ============================================================================
+export type SafetyIssueCategory =
+  | 'Ragging'
+  | 'Bullying'
+  | 'Harassment Concern'
+  | 'Campus Safety'
+  | 'Infrastructure Problem'
+  | 'Hostel or Classroom Issue'
+  | 'Other';
+
+export type SafetyReportStatus =
+  | 'Submitted'
+  | 'Under Review'
+  | 'Action Taken'
+  | 'Resolved';
+
+export interface SafetyReport {
+  id: string;
+  report_code: string;
+  user_id?: string | null;
+  is_anonymous: boolean;
+  category: SafetyIssueCategory;
+  subject: string;
+  description: string;
+  attachment_url?: string | null;
+  attachment_name?: string | null;
+  attachment_size?: number | null;
+  status: SafetyReportStatus;
+  staff_notes?: string | null;
+  action_summary?: string | null;
+  created_at: string;
+  updated_at?: string;
+}
+
+export interface EmergencyHelpline {
+  id: string;
+  service: string;
+  helpline: string;
+  description: string;
+  isPrimary?: boolean;
+}
+
+export interface VerifiedSupportContact {
+  id: string;
+  role: 'administration' | 'security' | 'medical' | 'counselor';
+  title: string;
+  department: string;
+  phone?: string | null;
+  email?: string | null;
+  location?: string | null;
+  hours?: string | null;
+  is_available: boolean;
+}
+

@@ -82,4 +82,86 @@ describe('Attendance Calculation & Duplicate Prevention Suite', () => {
     expect(matches[0].status).toBe('present');
     expect(matches[0].notes).toBe('Updated entry');
   });
+
+  it('handles 0 total classes gracefully with 0% attendance', () => {
+    const subjects: Subject[] = [
+      {
+        id: 'sub_empty',
+        user_id: 'user_1',
+        name: 'Quantum Computing',
+        code: 'QC101',
+      },
+    ];
+
+    const stats = apiService.calculateSubjectStats(subjects, []);
+    expect(stats.length).toBe(1);
+    expect(stats[0].totalClasses).toBe(0);
+    expect(stats[0].presentClasses).toBe(0);
+    expect(stats[0].percentage).toBe(0);
+  });
+
+  it('calculates 75% target projection formulas correctly for below and above target', () => {
+    // Below 75%: 6 present out of 10 = 60%
+    // Formula: N = max(0, ceil(3T - 4P)) = 3*10 - 4*6 = 30 - 24 = 6 consecutive present classes needed
+    const T_below = 10;
+    const P_below = 6;
+    const needed = Math.max(0, Math.ceil(3 * T_below - 4 * P_below));
+    expect(needed).toBe(6);
+    // Verification: (6 + 6) / (10 + 6) = 12 / 16 = 75%
+    expect((P_below + needed) / (T_below + needed)).toBe(0.75);
+
+    // Above 75%: 16 present out of 20 = 80%
+    // Formula: M = max(0, floor((4P - 3T) / 3)) = floor((64 - 60) / 3) = floor(4/3) = 1 missable class
+    const T_above = 20;
+    const P_above = 16;
+    const canMiss = Math.max(0, Math.floor((4 * P_above - 3 * T_above) / 3));
+    expect(canMiss).toBe(1);
+    // Verification: 16 / (20 + 1) = 16 / 21 = 76.19% >= 75%
+    expect(P_above / (T_above + canMiss)).toBeGreaterThanOrEqual(0.75);
+  });
+
+  it('prevents duplicate subject creation for the same student (case-insensitive)', () => {
+    const s1 = localStore.addSubject({
+      user_id: 'student_123',
+      name: 'Computer Networks',
+      code: 'CS401',
+    });
+    expect(s1.id).toBeDefined();
+
+    expect(() => {
+      localStore.addSubject({
+        user_id: 'student_123',
+        name: 'computer networks', // same name, different casing
+        code: 'CS401_B',
+      });
+    }).toThrow(/already exists/i);
+  });
+
+  it('cascades subject deletion to remove related attendance records', () => {
+    const sub = localStore.addSubject({
+      user_id: 'student_cascade',
+      name: 'Compiler Design',
+      code: 'CS601',
+    });
+
+    localStore.recordAttendance({
+      user_id: 'student_cascade',
+      subject_id: sub.id,
+      date: '2026-10-28',
+      status: 'Present',
+    });
+    localStore.recordAttendance({
+      user_id: 'student_cascade',
+      subject_id: sub.id,
+      date: '2026-10-29',
+      status: 'Absent',
+    });
+
+    expect(localStore.getAttendance().filter((a) => a.subject_id === sub.id).length).toBe(2);
+
+    localStore.deleteSubject(sub.id);
+
+    expect(localStore.getSubjects().find((s) => s.id === sub.id)).toBeUndefined();
+    expect(localStore.getAttendance().filter((a) => a.subject_id === sub.id).length).toBe(0);
+  });
 });
