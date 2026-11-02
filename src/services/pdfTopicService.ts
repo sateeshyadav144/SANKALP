@@ -5,6 +5,7 @@
 import { ExtractedTopic, DiagramType, PdfExtractionResult } from '../types';
 import { apiService } from './apiService';
 import { sanitizeMermaid } from '../utils/mermaidSanitizer';
+import { extractPdfDocument } from '../utils/pdfExtractor';
 
 // Enforce max PDF file size (10 MB)
 export const MAX_PDF_SIZE_BYTES = 10 * 1024 * 1024;
@@ -29,107 +30,16 @@ export const validatePdfUpload = (file: File): { valid: boolean; error?: string 
 
 // Client-side multi-page text extraction preserving page boundaries and order
 export const extractPdfContent = async (file: File): Promise<PdfExtractionResult> => {
-  const buffer = await file.arrayBuffer();
-  const bytes = new Uint8Array(buffer);
-  const latinText = new TextDecoder('latin1').decode(bytes);
-
-  // Check for encrypted/password-protected PDF
-  if (latinText.includes('/Encrypt')) {
-    return {
-      fileName: file.name,
-      fileSize: file.size,
-      pageCount: 0,
-      pages: [],
-      fullText: '',
-      isEncrypted: true,
-      hasContent: false,
-      error: 'This PDF is password-protected or encrypted. Please upload an unprotected version.',
-    };
-  }
-
-  // Count /Page objects or estimate pages
-  const pageMatches = latinText.match(/\/Type\s*\/Page\b/g);
-  const detectedPageCount = pageMatches ? pageMatches.length : 1;
-
-  // Split text by page delimiters or collect streams
-  const pages: Array<{ pageNumber: number; text: string; charCount: number }> = [];
-
-  // Parse text inside BT ... ET blocks
-  const btEtRegex = /BT[\s\S]*?ET/g;
-  const rawBlocks: string[] = [];
-  let match: RegExpExecArray | null;
-
-  while ((match = btEtRegex.exec(latinText)) !== null) {
-    const block = match[0];
-    const blockTextParts: string[] = [];
-
-    // Match (string) Tj or (string)' or (string)"
-    const strRegex = /\(([^)]+)\)\s*(?:Tj|'|")/g;
-    let strMatch: RegExpExecArray | null;
-    while ((strMatch = strRegex.exec(block)) !== null) {
-      const clean = strMatch[1].replace(/\\([()\\])/g, '$1').trim();
-      if (clean) blockTextParts.push(clean);
-    }
-
-    // Match array strings: [ (s1) 12 (s2) ] TJ
-    const tjArrayRegex = /\[([^\]]+)\]\s*TJ/g;
-    let arrayMatch: RegExpExecArray | null;
-    while ((arrayMatch = tjArrayRegex.exec(block)) !== null) {
-      const inside = arrayMatch[1];
-      const innerStrRegex = /\(([^)]+)\)/g;
-      let innerMatch: RegExpExecArray | null;
-      let combined = '';
-      while ((innerMatch = innerStrRegex.exec(inside)) !== null) {
-        combined += innerMatch[1].replace(/\\([()\\])/g, '$1');
-      }
-      if (combined.trim()) blockTextParts.push(combined.trim());
-    }
-
-    if (blockTextParts.length > 0) {
-      rawBlocks.push(blockTextParts.join(' '));
-    }
-  }
-
-  const allExtractedText = rawBlocks.join('\n\n').replace(/\r/g, '').trim();
-
-  // If page objects were found, split blocks across pages proportionately
-  if (detectedPageCount > 1 && rawBlocks.length > 1) {
-    const blocksPerPage = Math.max(1, Math.ceil(rawBlocks.length / detectedPageCount));
-    for (let p = 0; p < detectedPageCount; p++) {
-      const pageBlocks = rawBlocks.slice(p * blocksPerPage, (p + 1) * blocksPerPage);
-      const pageText = pageBlocks.join('\n').trim();
-      if (pageText) {
-        pages.push({
-          pageNumber: p + 1,
-          text: pageText,
-          charCount: pageText.length,
-        });
-      }
-    }
-  }
-
-  // If no multi-page split or 1 page
-  if (pages.length === 0) {
-    pages.push({
-      pageNumber: 1,
-      text: allExtractedText,
-      charCount: allExtractedText.length,
-    });
-  }
-
-  const hasContent = allExtractedText.length > 25;
-
+  const doc = await extractPdfDocument(file);
   return {
     fileName: file.name,
     fileSize: file.size,
-    pageCount: pages.length,
-    pages,
-    fullText: allExtractedText,
-    isEncrypted: false,
-    hasContent,
-    error: hasContent
-      ? undefined
-      : 'No readable text could be extracted from this PDF. It may be scanned or image-only without an embedded text layer.',
+    pageCount: doc.pageCount,
+    pages: doc.pages,
+    fullText: doc.text,
+    isEncrypted: doc.isEncrypted,
+    hasContent: doc.hasContent,
+    error: doc.error || (doc.hasContent ? undefined : 'No readable text could be extracted from this PDF. It may be scanned or image-only without an embedded text layer.'),
   };
 };
 

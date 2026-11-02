@@ -1,8 +1,14 @@
 // ==============================================================================
-// SANKALP — AI Flashcard Service (PDF Extraction & Secure AI Integration)
+// SANKALP — AI Flashcard Service (PDF Extraction & Secure AI OCR Integration)
 // ==============================================================================
 
 import { apiService } from './apiService';
+import {
+  validatePdfFile as validatePdfFileExt,
+  extractPdfDocument,
+  ExtractedPdfDocument,
+  MAX_PDF_SIZE_BYTES,
+} from '../utils/pdfExtractor';
 
 export interface GeneratedCard {
   id?: string;
@@ -36,79 +42,16 @@ export const fileToBase64 = (file: File): Promise<string> => {
   });
 };
 
-// Validate PDF format and file size (Enforcing Phase 5 limit of 10MB)
+// Validate PDF format and file size (delegated to robust validator)
 export const validatePdfFile = (file: File): { valid: boolean; error?: string } => {
-  if (!file) {
-    return { valid: false, error: 'No file provided.' };
-  }
-  const isPdf = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
-  if (!isPdf) {
-    return { valid: false, error: 'Only PDF documents (.pdf) are supported.' };
-  }
-  // Enforce server-safe max size: 10 MB
-  const maxSize = 10 * 1024 * 1024;
-  if (file.size > maxSize) {
-    return { valid: false, error: `PDF file size exceeds maximum limit of 10MB (Current: ${(file.size / (1024 * 1024)).toFixed(1)}MB).` };
-  }
-  if (file.size === 0) {
-    return { valid: false, error: 'Uploaded PDF file is empty (0 bytes).' };
-  }
-  return { valid: true };
+  return validatePdfFileExt(file);
 };
 
-// Client-side text extractor from PDF ArrayBuffer
-export const extractTextFromPdf = async (file: File): Promise<{ text: string; isEncrypted: boolean; hasContent: boolean }> => {
-  const buffer = await file.arrayBuffer();
-  const bytes = new Uint8Array(buffer);
-  const latinText = new TextDecoder('latin1').decode(bytes);
-
-  // Check for PDF encryption dictionary
-  if (latinText.includes('/Encrypt')) {
-    return { text: '', isEncrypted: true, hasContent: false };
-  }
-
-  // Extract text strings inside text blocks BT ... ET
-  const textChunks: string[] = [];
-  const btEtRegex = /BT[\s\S]*?ET/g;
-  let match: RegExpExecArray | null;
-
-  while ((match = btEtRegex.exec(latinText)) !== null) {
-    const block = match[0];
-    // Find strings in (parentheses) preceding Tj or TJ
-    const strRegex = /\(([^)]+)\)\s*(?:Tj|'|")/g;
-    let strMatch: RegExpExecArray | null;
-    while ((strMatch = strRegex.exec(block)) !== null) {
-      const clean = strMatch[1].replace(/\\([()\\])/g, '$1').trim();
-      if (clean.length > 0) {
-        textChunks.push(clean);
-      }
-    }
-
-    // Also parse array of strings in [ (str1) 12 (str2) ] TJ
-    const tjArrayRegex = /\[([^\]]+)\]\s*TJ/g;
-    let arrayMatch: RegExpExecArray | null;
-    while ((arrayMatch = tjArrayRegex.exec(block)) !== null) {
-      const inside = arrayMatch[1];
-      const innerStrRegex = /\(([^)]+)\)/g;
-      let innerMatch: RegExpExecArray | null;
-      let combined = '';
-      while ((innerMatch = innerStrRegex.exec(inside)) !== null) {
-        combined += innerMatch[1].replace(/\\([()\\])/g, '$1');
-      }
-      if (combined.trim().length > 0) {
-        textChunks.push(combined.trim());
-      }
-    }
-  }
-
-  const extracted = textChunks.join(' ').replace(/\s{2,}/g, ' ').trim();
-  const hasContent = extracted.length > 40;
-
-  return {
-    text: extracted,
-    isEncrypted: false,
-    hasContent,
-  };
+// Multi-page, FlateDecode-aware text extractor from PDF
+export const extractTextFromPdf = async (
+  file: File
+): Promise<ExtractedPdfDocument> => {
+  return await extractPdfDocument(file);
 };
 
 // Fallback: Academic Heuristic Synthesizer (Generates grounded flashcards from extracted text)
@@ -126,7 +69,7 @@ export const runHeuristicFlashcards = (
   const sentences = clean
     .split(/(?<=[.?!])\s+/)
     .map((s) => s.trim())
-    .filter((s) => s.length >= 25 && s.length <= 300);
+    .filter((s) => s.length >= 25 && s.length <= 350);
 
   // Pattern match definition sentences ("is defined as", "is a", "refers to", "consists of", "used for")
   const defPattern = /\b([A-Z][a-zA-Z0-9\s-]{2,40})\s+(?:is defined as|is a|is an|refers to|consists of|stands for|is used to|represents|means)\s+([^.]+)/i;
@@ -153,10 +96,20 @@ export const runHeuristicFlashcards = (
     if (cards.length >= count) break;
     if (cards.some((c) => c.answer.includes(s))) continue;
 
-    // Look for cause/effect or step keywords
-    if (s.includes('because') || s.includes('therefore') || s.includes('step') || s.includes('component') || s.includes('algorithm') || s.includes('process')) {
+    // Look for cause/effect, process, or architectural keywords
+    if (
+      s.includes('because') ||
+      s.includes('therefore') ||
+      s.includes('step') ||
+      s.includes('component') ||
+      s.includes('algorithm') ||
+      s.includes('process') ||
+      s.includes('layer') ||
+      s.includes('memory') ||
+      s.includes('system')
+    ) {
       const words = s.split(' ');
-      const preview = words.slice(0, 5).join(' ');
+      const preview = words.slice(0, 6).join(' ');
       cards.push({
         question: `Explain the concept regarding: "${preview}..."`,
         answer: s,
@@ -181,34 +134,137 @@ export const runHeuristicFlashcards = (
   return cards.slice(0, count);
 };
 
-// Primary Generator Orchestrator
+/**
+ * Safely slices and chunks large documents to fit model token boundaries.
+ */
+export const chunkDocumentText = (fullText: string, maxChars: number = 30000): string => {
+  if (fullText.length <= maxChars) return fullText;
+  // Preserve start and distributed high-value content
+  const half = Math.floor(maxChars / 2);
+  const head = fullText.slice(0, half);
+  const tail = fullText.slice(-half);
+  return `${head}\n\n[... content condensed for model context ...]\n\n${tail}`;
+};
+
+// Primary Generator Orchestrator with Text Extraction & Automatic Visual OCR
 export const generateFlashcardsFromPdf = async (
   options: GenerationOptions,
   onProgress?: (step: string, percent: number) => void
 ): Promise<GeneratedCard[]> => {
   const { file, count, difficulty, language, deckTitle, subject } = options;
 
-  onProgress?.('Validating document format and security...', 15);
+  // Step 1: Validate Document Format and Security Limits
+  onProgress?.('Validating document format and security limits...', 10);
   const val = validatePdfFile(file);
   if (!val.valid) {
     throw new Error(val.error || 'Invalid PDF file.');
   }
 
-  onProgress?.('Extracting text content from PDF...', 30);
+  // Step 2: Multi-Page Text Extraction
+  onProgress?.('Extracting text layer page by page...', 25);
   const extraction = await extractTextFromPdf(file);
+
   if (extraction.isEncrypted) {
     throw new Error('This PDF is password-protected or encrypted. Please upload an unencrypted document.');
   }
 
-  // 1. Attempt Server-Side Gemini Proxy via Supabase Edge Function
-  try {
-    onProgress?.('Encoding document for AI analysis...', 45);
+  let finalWorkingText = extraction.text;
+  let ocrUsed = false;
+
+  // Step 3: Handle Scanned / Image-Based PDFs with Automatic Visual OCR Fallback
+  if (!extraction.hasContent) {
+    onProgress?.('Scanned document detected (no embedded text layer). Initiating visual OCR via secure Gemini proxy...', 35);
+
+    if (file.size > MAX_PDF_SIZE_BYTES) {
+      throw new Error(`Scanned PDF size exceeds 10MB limit (${(file.size / (1024 * 1024)).toFixed(1)}MB). Please upload a smaller file.`);
+    }
+
+    onProgress?.('Encoding document for OCR visual analysis...', 45);
     const base64Data = await fileToBase64(file);
 
-    onProgress?.(`Synthesizing ${count} high-yield flashcards with AI model...`, 70);
+    onProgress?.('Performing OCR text extraction page by page via Gemini proxy...', 55);
 
-    const systemPrompt = `You are a university academic professor and exam preparation expert.
-Generate exactly ${count} high-yield, exam-focused study flashcards from the provided academic PDF.
+    const ocrPrompt = `You are an expert academic OCR and document digitization engine.
+Extract all readable text, lecture notes, formulas, definitions, and questions from this scanned document page by page in exact numerical page order.
+Format the output strictly as:
+--- Page 1 ---
+[Content of page 1]
+--- Page 2 ---
+[Content of page 2]
+
+Preserve all academic concepts, formulas, theorems, and terminology accurately.`;
+
+    try {
+      const ocrResult = await apiService.invokeGeminiAi({
+        actionType: 'ai_flashcards',
+        contents: [
+          {
+            parts: [
+              {
+                inlineData: {
+                  mimeType: 'application/pdf',
+                  data: base64Data,
+                },
+              },
+              {
+                text: ocrPrompt,
+              },
+            ],
+          },
+        ],
+      });
+
+      if (ocrResult.success && ocrResult.data) {
+        const ocrText = ocrResult.data.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (ocrText && ocrText.trim().length > 30) {
+          finalWorkingText = ocrText.trim();
+          ocrUsed = true;
+          onProgress?.('Visual OCR successful! Processing extracted lecture notes...', 70);
+        }
+      } else {
+        // Evaluate error reasons
+        const errMsg = ocrResult.error || '';
+        if (errMsg.includes('Rate limit')) {
+          throw new Error(errMsg);
+        }
+
+        // Clear configuration error for missing/invalid Gemini API setup
+        throw new Error(
+          'Unable to extract text: this PDF is a scanned document without an embedded text layer. ' +
+          'Automatic visual OCR requires a configured Gemini API on your Supabase backend proxy. ' +
+          'Please configure GEMINI_API_KEY in your Supabase Edge Function environment or upload a text-based PDF.'
+        );
+      }
+    } catch (err: any) {
+      if (err.message && (err.message.includes('Rate limit') || err.message.includes('GEMINI_API_KEY') || err.message.includes('scanned document'))) {
+        throw err;
+      }
+      throw new Error(
+        'Unable to extract text: this PDF is a scanned document without an embedded text layer. ' +
+        'Automatic visual OCR requires a configured Gemini API on your Supabase backend proxy. ' +
+        'Please configure GEMINI_API_KEY in your Supabase Edge Function environment or upload a text-based PDF.'
+      );
+    }
+  }
+
+  // Ensure we have readable content at this stage
+  if (!finalWorkingText || finalWorkingText.trim().length < 25) {
+    throw new Error(
+      'Unable to extract readable text from this PDF. ' +
+      'Please verify the document contains readable academic lecture notes or textbook material.'
+    );
+  }
+
+  // Step 4: Flashcard Deck Synthesis from Working Text
+  const pagesSummary = extraction.pageCount > 1
+    ? `across ${extraction.pageCount} pages`
+    : 'from document';
+  onProgress?.(`Synthesizing ${count} high-yield flashcards ${pagesSummary}...`, ocrUsed ? 80 : 65);
+
+  const safeContent = chunkDocumentText(finalWorkingText, 25000);
+
+  const systemPrompt = `You are a university academic professor and exam preparation expert.
+Generate exactly ${count} high-yield, exam-focused study flashcards from the provided academic lecture material.
 
 Deck Title: "${deckTitle}"
 Subject: "${subject || 'General Academic'}"
@@ -230,19 +286,18 @@ Guidelines:
     "hint": "Brief memory clue",
     "difficulty": "easy" | "medium" | "hard"
   }
-]`;
+]
 
+Document Text:
+${safeContent}`;
+
+  // 1. Attempt AI synthesis via Gemini proxy
+  try {
     const aiResult = await apiService.invokeGeminiAi({
       actionType: 'ai_flashcards',
       contents: [
         {
           parts: [
-            {
-              inlineData: {
-                mimeType: 'application/pdf',
-                data: base64Data,
-              },
-            },
             {
               text: systemPrompt,
             },
@@ -258,7 +313,9 @@ Guidelines:
     if (aiResult.success && aiResult.data) {
       const rawJsonText = aiResult.data.candidates?.[0]?.content?.parts?.[0]?.text;
       if (rawJsonText) {
-        const parsed: GeneratedCard[] = JSON.parse(rawJsonText);
+        // Strip code fences if returned
+        const cleanedJson = rawJsonText.replace(/^```json\s*|```\s*$/g, '').trim();
+        const parsed: GeneratedCard[] = JSON.parse(cleanedJson);
         if (Array.isArray(parsed) && parsed.length > 0) {
           onProgress?.('Finalizing flashcard deck preview...', 100);
           return parsed.slice(0, count).map((c, i) => ({
@@ -270,26 +327,18 @@ Guidelines:
       }
     }
   } catch (err: any) {
-    // If rate limited, propagate rate limit message directly
     if (err?.message && err.message.includes('Rate limit')) {
       throw err;
     }
     console.warn('AI proxy unavailable or offline, transitioning to local heuristic engine:', err?.message);
   }
 
-  // Offline / Heuristic Fallback
-  onProgress?.('Analyzing document with intelligent academic parser...', 65);
-  await new Promise((r) => setTimeout(r, 600));
-
-  if (!extraction.hasContent) {
-    throw new Error('Unable to extract readable text from this PDF. The document may be a scanned image without an OCR text layer. Please configure a Gemini API key in settings for automatic visual OCR.');
-  }
-
-  onProgress?.(`Generating ${count} flashcards from extracted lecture notes...`, 90);
+  // 2. Offline / Heuristic Fallback
+  onProgress?.('Analyzing document with intelligent academic parser...', 85);
   await new Promise((r) => setTimeout(r, 400));
 
   const synthesized = runHeuristicFlashcards(
-    extraction.text,
+    finalWorkingText,
     count,
     subject || 'General',
     deckTitle,
@@ -302,4 +351,3 @@ Guidelines:
     id: `heu_${Date.now()}_${i}`,
   }));
 };
-
