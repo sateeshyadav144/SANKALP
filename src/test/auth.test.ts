@@ -7,6 +7,56 @@ describe('Student Profile & Storage Isolation Suite', () => {
     localStorage.clear();
   });
 
+  it('saves and authenticates registered local users with password verification and separate accounts', () => {
+    // Register user 1
+    const regUser1 = localStore.saveRegisteredUser({
+      email: 'student1@campus.edu',
+      password: 'SecurePassword123!',
+      profile: {
+        id: 'usr_local_1',
+        email: 'student1@campus.edu',
+        full_name: 'Student One',
+        department: 'Computer Science',
+      },
+    });
+
+    expect(regUser1.email).toBe('student1@campus.edu');
+
+    // Register user 2
+    localStore.saveRegisteredUser({
+      email: 'student2@campus.edu',
+      password: 'AnotherPassword456!',
+      profile: {
+        id: 'usr_local_2',
+        email: 'student2@campus.edu',
+        full_name: 'Student Two',
+        department: 'Electrical Engineering',
+      },
+    });
+
+    // Lookup user 1
+    const found1 = localStore.findUserByEmail('student1@campus.edu');
+    expect(found1).toBeDefined();
+    expect(found1?.password).toBe('SecurePassword123!');
+    expect(found1?.profile.full_name).toBe('Student One');
+
+    // Lookup user 2
+    const found2 = localStore.findUserByEmail('STUDENT2@campus.edu'); // case-insensitive
+    expect(found2).toBeDefined();
+    expect(found2?.password).toBe('AnotherPassword456!');
+    expect(found2?.profile.full_name).toBe('Student Two');
+
+    // Active user session tracking
+    localStore.setActiveUserId(found1!.profile.id);
+    expect(localStore.getActiveUserId()).toBe('usr_local_1');
+
+    localStore.setActiveUserId(found2!.profile.id);
+    expect(localStore.getActiveUserId()).toBe('usr_local_2');
+
+    localStore.setActiveUserId(null);
+    expect(localStore.getActiveUserId()).toBeNull();
+  });
+
   it('stores and updates student profile records', () => {
     const profile = localStore.getProfile();
     expect(profile.full_name).toBe(INITIAL_MOCK_USER.full_name);

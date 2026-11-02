@@ -6,6 +6,35 @@ describe('Expense Tracking & Budget Validation Suite', () => {
     localStorage.clear();
   });
 
+  it('initializes as empty by default for any new user with no mock records', () => {
+    // Fresh user should have zero expenses
+    const newExpenses = localStore.getExpenses('new_student_99');
+    expect(newExpenses).toEqual([]);
+    expect(newExpenses.length).toBe(0);
+  });
+
+  it('strictly isolates expenses between distinct users', () => {
+    // User A adds an expense
+    const expUserA = localStore.addExpense({
+      user_id: 'user_A',
+      title: 'Hostel Mess Fee',
+      amount: 4500,
+      category: 'Food & Canteen',
+      date: '2026-11-01',
+      payment_method: 'UPI',
+    });
+
+    // User B queries expenses
+    const expensesUserB = localStore.getExpenses('user_B');
+    expect(expensesUserB.length).toBe(0);
+    expect(expensesUserB.some((e) => e.id === expUserA.id)).toBe(false);
+
+    // User A queries expenses
+    const expensesUserA = localStore.getExpenses('user_A');
+    expect(expensesUserA.length).toBe(1);
+    expect(expensesUserA[0].id).toBe(expUserA.id);
+  });
+
   it('adds and calculates expenses with budget limits', () => {
     // Add budget
     localStore.saveBudget(6000);

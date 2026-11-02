@@ -8,6 +8,48 @@ describe('Attendance Calculation & Duplicate Prevention Suite', () => {
     localStorage.clear();
   });
 
+  it('starts completely empty by default for any new user with zero mock subjects or records', () => {
+    const subjects = localStore.getSubjects('fresh_user_001');
+    const attendance = localStore.getAttendance('fresh_user_001');
+
+    expect(subjects).toEqual([]);
+    expect(attendance).toEqual([]);
+    expect(subjects.length).toBe(0);
+    expect(attendance.length).toBe(0);
+  });
+
+  it('strictly isolates subjects and attendance records between different users', () => {
+    // User 1 adds a subject and an attendance mark
+    const sub1 = localStore.addSubject({
+      user_id: 'user_alpha',
+      name: 'Distributed Systems',
+      code: 'CS502',
+    });
+
+    const rec1 = localStore.recordAttendance({
+      user_id: 'user_alpha',
+      subject_id: sub1.id,
+      date: '2026-11-01',
+      status: 'Present',
+    });
+
+    // User 2 queries their subjects and records
+    const subjectsBeta = localStore.getSubjects('user_beta');
+    const recordsBeta = localStore.getAttendance('user_beta');
+
+    expect(subjectsBeta.length).toBe(0);
+    expect(recordsBeta.length).toBe(0);
+
+    // User 1 queries their subjects and records
+    const subjectsAlpha = localStore.getSubjects('user_alpha');
+    const recordsAlpha = localStore.getAttendance('user_alpha');
+
+    expect(subjectsAlpha.length).toBe(1);
+    expect(subjectsAlpha[0].id).toBe(sub1.id);
+    expect(recordsAlpha.length).toBe(1);
+    expect(recordsAlpha[0].id).toBe(rec1.id);
+  });
+
   it('calculates subject attendance percentages accurately with target warning', () => {
     const subjects: Subject[] = [
       {

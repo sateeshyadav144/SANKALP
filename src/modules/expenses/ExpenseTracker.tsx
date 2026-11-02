@@ -501,17 +501,17 @@ export const ExpenseTracker: React.FC = () => {
                       <div className="w-14 h-14 rounded-2xl bg-[#00D6B5]/10 border border-[#00D6B5]/20 flex items-center justify-center text-[#00D6B5]">
                         <Wallet className="w-7 h-7" />
                       </div>
-                      <p className="text-sm font-semibold text-[#F4F7FF]">No expense records found</p>
+                      <p className="text-sm font-semibold text-[#F4F7FF]">No expenses yet. Add your first expense.</p>
                       <p className="text-xs text-[#9BAFCB] max-w-xs">
                         {search || selectedCategory !== 'all'
                           ? 'Try adjusting your search query or category filters'
-                          : 'Start tracking your daily college expenses, canteen bills, and books'}
+                          : 'Manually add your college expenses to start tracking your budget.'}
                       </p>
                       <button
                         onClick={handleOpenAddModal}
                         className="mt-2 px-4 py-2 text-xs font-semibold rounded-xl bg-gradient-to-r from-[#00D6B5] to-[#087BFF] text-[#020B1A] hover:opacity-95 transition"
                       >
-                        + Add First Expense
+                        + Add Expense
                       </button>
                     </div>
                   </td>

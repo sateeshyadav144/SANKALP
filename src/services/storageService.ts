@@ -49,11 +49,20 @@ const STORAGE_KEYS = {
   SAFETY_REPORTS: 'sankalp_safety_reports',
   VERIFIED_SUPPORT_CONTACTS: 'sankalp_verified_support_contacts',
   IS_LOGGED_IN: 'sankalp_auth_logged_in',
+  REGISTERED_USERS: 'sankalp_registered_users',
+  ACTIVE_USER_ID: 'sankalp_active_user_id',
   RATE_LIMITS: 'sankalp_student_rate_limits',
   SOURCE_DOCUMENTS: 'sankalp_source_documents',
   EXTRACTED_TOPICS: 'sankalp_extracted_topics',
   SPEECH_NOTES: 'sankalp_saved_speech_notes',
 };
+
+export interface LocalRegisteredUser {
+  id?: string;
+  email: string;
+  password?: string;
+  profile: StudentProfile;
+}
 
 class LocalStorageService {
   constructor() {
@@ -65,35 +74,66 @@ class LocalStorageService {
       localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(INITIAL_MOCK_USER));
     }
     if (!localStorage.getItem(STORAGE_KEYS.BUDGET)) {
-      localStorage.setItem(STORAGE_KEYS.BUDGET, JSON.stringify(INITIAL_MOCK_BUDGET));
+      localStorage.setItem(STORAGE_KEYS.BUDGET, JSON.stringify([]));
     }
+    // Expense Tracker MUST start completely empty by default
     if (!localStorage.getItem(STORAGE_KEYS.EXPENSES)) {
-      localStorage.setItem(STORAGE_KEYS.EXPENSES, JSON.stringify(INITIAL_MOCK_EXPENSES));
+      localStorage.setItem(STORAGE_KEYS.EXPENSES, JSON.stringify([]));
+    } else {
+      try {
+        const existing = JSON.parse(localStorage.getItem(STORAGE_KEYS.EXPENSES) || '[]');
+        const cleaned = existing.filter((e: any) => e.user_id !== 'usr_demo_sankalp_2026');
+        if (cleaned.length !== existing.length) {
+          localStorage.setItem(STORAGE_KEYS.EXPENSES, JSON.stringify(cleaned));
+        }
+      } catch {
+        localStorage.setItem(STORAGE_KEYS.EXPENSES, JSON.stringify([]));
+      }
     }
+    // Attendance Manager MUST start completely empty by default
     if (!localStorage.getItem(STORAGE_KEYS.SUBJECTS)) {
-      localStorage.setItem(STORAGE_KEYS.SUBJECTS, JSON.stringify(INITIAL_MOCK_SUBJECTS));
+      localStorage.setItem(STORAGE_KEYS.SUBJECTS, JSON.stringify([]));
+    } else {
+      try {
+        const existing = JSON.parse(localStorage.getItem(STORAGE_KEYS.SUBJECTS) || '[]');
+        const cleaned = existing.filter((s: any) => s.user_id !== 'usr_demo_sankalp_2026');
+        if (cleaned.length !== existing.length) {
+          localStorage.setItem(STORAGE_KEYS.SUBJECTS, JSON.stringify(cleaned));
+        }
+      } catch {
+        localStorage.setItem(STORAGE_KEYS.SUBJECTS, JSON.stringify([]));
+      }
     }
     if (!localStorage.getItem(STORAGE_KEYS.ATTENDANCE)) {
-      const initialAttendance = generateInitialMockAttendance(INITIAL_MOCK_USER.id, INITIAL_MOCK_SUBJECTS);
-      localStorage.setItem(STORAGE_KEYS.ATTENDANCE, JSON.stringify(initialAttendance));
+      localStorage.setItem(STORAGE_KEYS.ATTENDANCE, JSON.stringify([]));
+    } else {
+      try {
+        const existing = JSON.parse(localStorage.getItem(STORAGE_KEYS.ATTENDANCE) || '[]');
+        const cleaned = existing.filter((a: any) => a.user_id !== 'usr_demo_sankalp_2026');
+        if (cleaned.length !== existing.length) {
+          localStorage.setItem(STORAGE_KEYS.ATTENDANCE, JSON.stringify(cleaned));
+        }
+      } catch {
+        localStorage.setItem(STORAGE_KEYS.ATTENDANCE, JSON.stringify([]));
+      }
     }
     if (!localStorage.getItem(STORAGE_KEYS.NOTES)) {
-      localStorage.setItem(STORAGE_KEYS.NOTES, JSON.stringify(INITIAL_MOCK_NOTES));
+      localStorage.setItem(STORAGE_KEYS.NOTES, JSON.stringify([]));
     }
     if (!localStorage.getItem(STORAGE_KEYS.DIAGRAMS)) {
-      localStorage.setItem(STORAGE_KEYS.DIAGRAMS, JSON.stringify(INITIAL_MOCK_DIAGRAMS));
+      localStorage.setItem(STORAGE_KEYS.DIAGRAMS, JSON.stringify([]));
     }
     if (!localStorage.getItem(STORAGE_KEYS.DECKS)) {
-      localStorage.setItem(STORAGE_KEYS.DECKS, JSON.stringify(INITIAL_MOCK_DECKS));
+      localStorage.setItem(STORAGE_KEYS.DECKS, JSON.stringify([]));
     }
     if (!localStorage.getItem(STORAGE_KEYS.FLASHCARDS)) {
-      localStorage.setItem(STORAGE_KEYS.FLASHCARDS, JSON.stringify(INITIAL_MOCK_FLASHCARDS));
+      localStorage.setItem(STORAGE_KEYS.FLASHCARDS, JSON.stringify([]));
     }
     if (!localStorage.getItem(STORAGE_KEYS.FLASHCARD_REVIEWS)) {
       localStorage.setItem(STORAGE_KEYS.FLASHCARD_REVIEWS, JSON.stringify([]));
     }
     if (!localStorage.getItem(STORAGE_KEYS.CODE_SNIPPETS)) {
-      localStorage.setItem(STORAGE_KEYS.CODE_SNIPPETS, JSON.stringify(INITIAL_MOCK_CODE_SNIPPETS));
+      localStorage.setItem(STORAGE_KEYS.CODE_SNIPPETS, JSON.stringify([]));
     }
     if (!localStorage.getItem(STORAGE_KEYS.SAFETY_RESOURCES)) {
       localStorage.setItem(STORAGE_KEYS.SAFETY_RESOURCES, JSON.stringify(INITIAL_MOCK_SAFETY));
@@ -102,18 +142,56 @@ class LocalStorageService {
 
   resetToMocks() {
     localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(INITIAL_MOCK_USER));
-    localStorage.setItem(STORAGE_KEYS.BUDGET, JSON.stringify(INITIAL_MOCK_BUDGET));
-    localStorage.setItem(STORAGE_KEYS.EXPENSES, JSON.stringify(INITIAL_MOCK_EXPENSES));
-    localStorage.setItem(STORAGE_KEYS.SUBJECTS, JSON.stringify(INITIAL_MOCK_SUBJECTS));
-    const initialAttendance = generateInitialMockAttendance(INITIAL_MOCK_USER.id, INITIAL_MOCK_SUBJECTS);
-    localStorage.setItem(STORAGE_KEYS.ATTENDANCE, JSON.stringify(initialAttendance));
-    localStorage.setItem(STORAGE_KEYS.NOTES, JSON.stringify(INITIAL_MOCK_NOTES));
-    localStorage.setItem(STORAGE_KEYS.DIAGRAMS, JSON.stringify(INITIAL_MOCK_DIAGRAMS));
-    localStorage.setItem(STORAGE_KEYS.DECKS, JSON.stringify(INITIAL_MOCK_DECKS));
-    localStorage.setItem(STORAGE_KEYS.FLASHCARDS, JSON.stringify(INITIAL_MOCK_FLASHCARDS));
+    localStorage.setItem(STORAGE_KEYS.BUDGET, JSON.stringify([]));
+    localStorage.setItem(STORAGE_KEYS.EXPENSES, JSON.stringify([]));
+    localStorage.setItem(STORAGE_KEYS.SUBJECTS, JSON.stringify([]));
+    localStorage.setItem(STORAGE_KEYS.ATTENDANCE, JSON.stringify([]));
+    localStorage.setItem(STORAGE_KEYS.NOTES, JSON.stringify([]));
+    localStorage.setItem(STORAGE_KEYS.DIAGRAMS, JSON.stringify([]));
+    localStorage.setItem(STORAGE_KEYS.DECKS, JSON.stringify([]));
+    localStorage.setItem(STORAGE_KEYS.FLASHCARDS, JSON.stringify([]));
     localStorage.setItem(STORAGE_KEYS.FLASHCARD_REVIEWS, JSON.stringify([]));
-    localStorage.setItem(STORAGE_KEYS.CODE_SNIPPETS, JSON.stringify(INITIAL_MOCK_CODE_SNIPPETS));
+    localStorage.setItem(STORAGE_KEYS.CODE_SNIPPETS, JSON.stringify([]));
     localStorage.setItem(STORAGE_KEYS.SAFETY_RESOURCES, JSON.stringify(INITIAL_MOCK_SAFETY));
+  }
+
+  // --- Registered Accounts Management (Offline Mode) ---
+  getRegisteredUsers(): LocalRegisteredUser[] {
+    const raw = localStorage.getItem(STORAGE_KEYS.REGISTERED_USERS);
+    return raw ? JSON.parse(raw) : [];
+  }
+
+  saveRegisteredUser(userData: LocalRegisteredUser): LocalRegisteredUser {
+    const userToSave: LocalRegisteredUser = {
+      ...userData,
+      id: userData.id || userData.profile?.id || 'usr_' + Math.random().toString(36).substring(2, 9),
+    };
+    const users = this.getRegisteredUsers();
+    const idx = users.findIndex(u => u.email.toLowerCase() === userToSave.email.toLowerCase());
+    if (idx !== -1) {
+      users[idx] = userToSave;
+    } else {
+      users.push(userToSave);
+    }
+    localStorage.setItem(STORAGE_KEYS.REGISTERED_USERS, JSON.stringify(users));
+    return userToSave;
+  }
+
+  findUserByEmail(email: string): LocalRegisteredUser | undefined {
+    const users = this.getRegisteredUsers();
+    return users.find(u => u.email.toLowerCase() === email.toLowerCase());
+  }
+
+  getActiveUserId(): string | null {
+    return localStorage.getItem(STORAGE_KEYS.ACTIVE_USER_ID);
+  }
+
+  setActiveUserId(id: string | null) {
+    if (id) {
+      localStorage.setItem(STORAGE_KEYS.ACTIVE_USER_ID, id);
+    } else {
+      localStorage.removeItem(STORAGE_KEYS.ACTIVE_USER_ID);
+    }
   }
 
   // --- Profile ---
@@ -130,9 +208,19 @@ class LocalStorageService {
   }
 
   // --- Expenses & Budget ---
-  getExpenses(): Expense[] {
+  getExpenses(userId?: string): Expense[] {
     const raw = localStorage.getItem(STORAGE_KEYS.EXPENSES);
-    return raw ? JSON.parse(raw) : [];
+    if (!raw) return [];
+    try {
+      const all: Expense[] = JSON.parse(raw);
+      const filtered = all.filter(e => e.user_id !== 'usr_demo_sankalp_2026');
+      if (userId) {
+        return filtered.filter(e => e.user_id === userId);
+      }
+      return filtered;
+    } catch {
+      return [];
+    }
   }
 
   addExpense(expense: Omit<Expense, 'id' | 'created_at'>): Expense {
@@ -161,35 +249,83 @@ class LocalStorageService {
     localStorage.setItem(STORAGE_KEYS.EXPENSES, JSON.stringify(all));
   }
 
-  getBudget(): Budget {
+  getBudget(userId?: string, month?: string): Budget {
+    const currentMonth = month || new Date().toISOString().slice(0, 7);
     const raw = localStorage.getItem(STORAGE_KEYS.BUDGET);
-    return raw ? JSON.parse(raw) : INITIAL_MOCK_BUDGET;
-  }
-
-  saveBudget(monthlyLimit: number): Budget {
-    const current = this.getBudget();
-    const updated: Budget = {
-      ...current,
-      monthly_limit: monthlyLimit,
+    if (raw) {
+      try {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) {
+          const found = parsed.find((b: Budget) => (!userId || b.user_id === userId) && (!month || b.month === month));
+          if (found) return found;
+        } else if (parsed && typeof parsed === 'object') {
+          if (!userId || parsed.user_id === userId) return parsed;
+        }
+      } catch {
+        // Fallback
+      }
+    }
+    return {
+      id: 'bgt_' + (userId || 'default'),
+      user_id: userId || 'usr_default',
+      month: currentMonth,
+      monthly_limit: 5000,
+      created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     };
-    localStorage.setItem(STORAGE_KEYS.BUDGET, JSON.stringify(updated));
+  }
+
+  saveBudget(monthlyLimit: number, userId?: string, month?: string): Budget {
+    const currentMonth = month || new Date().toISOString().slice(0, 7);
+    const raw = localStorage.getItem(STORAGE_KEYS.BUDGET);
+    let allBudgets: Budget[] = [];
+    if (raw) {
+      try {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) allBudgets = parsed;
+        else if (parsed && typeof parsed === 'object') allBudgets = [parsed];
+      } catch {
+        allBudgets = [];
+      }
+    }
+
+    const idx = allBudgets.findIndex((b) => (!userId || b.user_id === userId) && b.month === currentMonth);
+    const updated: Budget = {
+      id: idx !== -1 ? allBudgets[idx].id : 'bgt_' + Math.random().toString(36).substring(2, 9),
+      user_id: userId || (idx !== -1 ? allBudgets[idx].user_id : 'usr_default'),
+      month: currentMonth,
+      monthly_limit: monthlyLimit,
+      updated_at: new Date().toISOString(),
+      created_at: idx !== -1 ? allBudgets[idx].created_at : new Date().toISOString(),
+    };
+
+    if (idx !== -1) {
+      allBudgets[idx] = updated;
+    } else {
+      allBudgets.push(updated);
+    }
+    localStorage.setItem(STORAGE_KEYS.BUDGET, JSON.stringify(allBudgets));
     return updated;
   }
 
   // --- Subjects & Attendance ---
-  getSubjects(): Subject[] {
+  getSubjects(userId?: string): Subject[] {
     const raw = localStorage.getItem(STORAGE_KEYS.SUBJECTS);
     if (!raw) return [];
     try {
       const parsed: Subject[] = JSON.parse(raw);
-      return parsed.map(s => ({
+      const filtered = parsed.filter(s => s.user_id !== 'usr_demo_sankalp_2026');
+      const mapped = filtered.map(s => ({
         ...s,
         name: s.name || s.subject_name || 'Untitled Subject',
         subject_name: s.subject_name || s.name || 'Untitled Subject',
         code: s.code || s.subject_code || '',
         subject_code: s.subject_code || s.code || '',
       }));
+      if (userId) {
+        return mapped.filter(s => s.user_id === userId);
+      }
+      return mapped;
     } catch {
       return [];
     }
@@ -201,7 +337,8 @@ class LocalStorageService {
     if (!cleanName) throw new Error('Subject name is required.');
 
     const exists = all.some(
-      s => (s.name || s.subject_name || '').trim().toLowerCase() === cleanName.toLowerCase()
+      s => (!subject.user_id || s.user_id === subject.user_id) &&
+           (s.name || s.subject_name || '').trim().toLowerCase() === cleanName.toLowerCase()
     );
     if (exists) {
       throw new Error(`A subject named "${cleanName}" already exists.`);
@@ -230,8 +367,11 @@ class LocalStorageService {
     const cleanName = (updates.name || updates.subject_name || all[idx].name).trim();
     if (!cleanName) throw new Error('Subject name is required.');
 
+    const currentUserId = all[idx].user_id;
     const exists = all.some(
-      s => s.id !== id && (s.name || s.subject_name || '').trim().toLowerCase() === cleanName.toLowerCase()
+      s => s.id !== id &&
+           (!currentUserId || s.user_id === currentUserId) &&
+           (s.name || s.subject_name || '').trim().toLowerCase() === cleanName.toLowerCase()
     );
     if (exists) {
       throw new Error(`Another subject named "${cleanName}" already exists.`);
@@ -259,12 +399,13 @@ class LocalStorageService {
     localStorage.setItem(STORAGE_KEYS.ATTENDANCE, JSON.stringify(attendance));
   }
 
-  getAttendance(): AttendanceRecord[] {
+  getAttendance(userId?: string): AttendanceRecord[] {
     const raw = localStorage.getItem(STORAGE_KEYS.ATTENDANCE);
     if (!raw) return [];
     try {
       const parsed: AttendanceRecord[] = JSON.parse(raw);
-      return parsed.map(a => {
+      const filtered = parsed.filter(a => a.user_id !== 'usr_demo_sankalp_2026');
+      const mapped = filtered.map(a => {
         const cleanDate = a.date || a.attendance_date || new Date().toISOString().split('T')[0];
         return {
           ...a,
@@ -273,6 +414,10 @@ class LocalStorageService {
           status: a.status || 'Present',
         };
       });
+      if (userId) {
+        return mapped.filter(a => a.user_id === userId);
+      }
+      return mapped;
     } catch {
       return [];
     }
@@ -283,9 +428,11 @@ class LocalStorageService {
     const cleanDate = (record.date || record.attendance_date || new Date().toISOString().split('T')[0]).trim();
     const statusToSave = record.status || 'Present';
 
-    // Validate uniqueness: duplicate attendance check for same subject and date!
+    // Validate uniqueness: duplicate attendance check for same user, subject and date!
     const existingIndex = all.findIndex(
-      a => a.subject_id === record.subject_id && (a.date === cleanDate || a.attendance_date === cleanDate)
+      a => (!record.user_id || a.user_id === record.user_id) &&
+           a.subject_id === record.subject_id &&
+           (a.date === cleanDate || a.attendance_date === cleanDate)
     );
 
     if (existingIndex !== -1) {

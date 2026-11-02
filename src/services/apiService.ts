@@ -88,7 +88,7 @@ export const apiService = {
       return data || [];
     }
     await delay();
-    return localStore.getExpenses();
+    return localStore.getExpenses(userId);
   },
 
   async addExpense(userId: string, expense: Omit<Expense, 'id' | 'user_id' | 'created_at'>): Promise<Expense> {
@@ -151,7 +151,7 @@ export const apiService = {
       };
     }
     await delay();
-    return localStore.getBudget();
+    return localStore.getBudget(userId, month);
   },
 
   async saveBudget(userId: string, month: string, monthlyLimit: number): Promise<Budget> {
@@ -168,14 +168,14 @@ export const apiService = {
       return data;
     }
     await delay();
-    return localStore.saveBudget(monthlyLimit);
+    return localStore.saveBudget(monthlyLimit, userId, month);
   },
 
   // --------------------------------------------------------------------------
   // Subjects & Attendance
   // --------------------------------------------------------------------------
   async getSubjects(userId: string): Promise<Subject[]> {
-    const authUid = await getActiveSessionUserId();
+    const authUid = (await getActiveSessionUserId()) || userId;
     if (authUid && supabase) {
       try {
         const { data, error } = await supabase
@@ -198,7 +198,7 @@ export const apiService = {
       }
     }
     await delay();
-    return localStore.getSubjects();
+    return localStore.getSubjects(userId);
   },
 
   async addSubject(userId: string, subject: Omit<Subject, 'id' | 'user_id' | 'created_at'>): Promise<Subject> {
@@ -371,7 +371,7 @@ export const apiService = {
       }
     }
     await delay();
-    return localStore.getAttendance();
+    return localStore.getAttendance(userId);
   },
 
   async recordAttendance(

@@ -620,12 +620,18 @@ export const AttendanceManager: React.FC = () => {
               </span>
               <span
                 className={`text-[11px] font-bold px-2 py-0.5 rounded-md ${
-                  overallStats.percentage >= 75
+                  overallStats.totalClasses === 0
+                    ? 'bg-slate-700/30 text-[#9BAFCB] border border-[#17365C]'
+                    : overallStats.percentage >= 75
                     ? 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/30'
                     : 'bg-amber-500/15 text-amber-300 border border-amber-500/30'
                 }`}
               >
-                {overallStats.percentage >= 75 ? 'Eligible (≥75%)' : 'Below 75% Target'}
+                {overallStats.totalClasses === 0
+                  ? 'No Data'
+                  : overallStats.percentage >= 75
+                  ? 'Eligible (≥75%)'
+                  : 'Below 75% Target'}
               </span>
             </div>
           </div>
@@ -870,10 +876,18 @@ export const AttendanceManager: React.FC = () => {
         </div>
 
         {subjects.length === 0 ? (
-          <div className="p-8 text-center rounded-2xl bg-[#071B35]/50 border border-[#17365C] text-xs text-[#9BAFCB] space-y-2">
+          <div className="p-8 text-center rounded-2xl bg-[#071B35]/50 border border-[#17365C] text-xs text-[#9BAFCB] space-y-3">
             <BookOpen className="w-8 h-8 mx-auto text-[#17365C]" />
-            <p className="font-semibold text-[#F4F7FF]">No subjects added yet.</p>
-            <p>Click &quot;Add Subject&quot; above to add your semester courses.</p>
+            <p className="font-semibold text-sm text-[#F4F7FF]">No subjects added yet. Add your first subject.</p>
+            <p className="text-xs text-[#9BAFCB]">Click below to add your courses and begin logging class attendance.</p>
+            <button
+              type="button"
+              onClick={() => setIsAddingSubject(true)}
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-[#087BFF] to-[#00D9FF] hover:opacity-90 transition shadow-md"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              <span>Add Your First Subject</span>
+            </button>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
